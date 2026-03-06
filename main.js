@@ -10,12 +10,13 @@ let newAo3WorkDom;
 
 trackBtn.addEventListener('click', async function() {
     queryData.link = linkInput.value;
+    console.log(`link: ${queryData.link}`)
     try {
         //queryData.content = await HTMLParserUtil.fetchHTML(queryData.link);
         let HTMLString = await HTMLParserUtil.fetchHTML(queryData.link)
         queryData.content = HTMLString;
         let HTMLDom = HTMLParserUtil.stringHTMLToDom(HTMLString);
-        newAo3WorkDom = new Ao3WorkDom(HTMLDom);
+        newAo3WorkDom = new Ao3WorkDom(HTMLDom, queryData.link);
         //HTMLParserUtil.parseStat(queryData.content);
         //console.log(queryData.content);
     } catch(error) {
