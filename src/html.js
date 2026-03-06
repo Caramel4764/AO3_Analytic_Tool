@@ -27,6 +27,10 @@ function parseAO3Chapter(chapterString) {
     }
 }
 function removeCommaFromNum(num) {
+    console.log(`num: ${num}`);
+    if (!num) {
+        return num;
+    }
     return Number(num.replace(/,/g, ""));
 }
 function updateMetaData() {
@@ -45,7 +49,7 @@ function updateSnapshot() {
     workSnapshot.chapterCount = removeCommaFromNum(queryData.stats.chapters);
     workSnapshot.kudos = removeCommaFromNum(queryData.stats.kudos);
     workSnapshot.hits = removeCommaFromNum(queryData.stats.hits);
-    workSnapshot.commentCount = removeCommaFromNum(queryData.stats.commentCount);
+    workSnapshot.commentCount = removeCommaFromNum(queryData.stats.comments);
     workSnapshot.bookmarks = removeCommaFromNum(queryData.stats.bookmarks);
 }
 
@@ -56,8 +60,8 @@ function parseStat(HTMLContent) {
     let listOfDataValue = queryData.webpage.querySelectorAll("dl.stats dd");
     let dataObject={};
     for (let i = 0; i < listOfDataLabel.length; i++) {
-        listOfDataLabel[i].textContent = (listOfDataLabel[i].textContent).toLowerCase();
-        if (listOfDataLabel[i].textContent == "chapters:") {
+        listOfDataLabel[i].textContent = (listOfDataLabel[i].textContent).toLowerCase().replace(":", "");
+        if (listOfDataLabel[i].textContent == "chapters") {
             listOfDataValue[i].textContent = parseAO3Chapter(listOfDataValue[i].textContent);
         }
         dataObject[listOfDataLabel[i].textContent] = listOfDataValue[i].textContent;
