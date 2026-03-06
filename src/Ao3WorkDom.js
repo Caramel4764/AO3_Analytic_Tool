@@ -1,7 +1,7 @@
 import HTMLParserUtil from "./HTMLParserUtil.js";
 import numberUtils from "./numberUtils.js";
 class Ao3WorkDom {
-    constructor(dom) {
+    constructor(dom, url) {
         this.dom = dom;
         this.stats = {
             hits: 0,
@@ -17,7 +17,12 @@ class Ao3WorkDom {
             url: "", 
             published: ""
         }
-        this.parseStat(this.dom);
+        this.metadata.url = url;
+        this.parseStat();
+        this.parseMetadata()
+    }
+    getStats() {
+        return this.stats;
     }
     getKudos() {
         return this.stats.kudos;
@@ -38,11 +43,12 @@ class Ao3WorkDom {
         let chapterInt = "";
         for (let i = 0; i < chapterString.length; i++) {
             if (chapterString[i]=='/') {
-                console.log(`important: ${chapterInt}`);
+                //console.log(`ParsedChapter: ${Number(chapterInt)}`);
                 return Number(chapterInt);
             }
             chapterInt+=chapterString[i];
         }
+        return 0;
     }
 
     updateMetaData() {
@@ -64,17 +70,29 @@ class Ao3WorkDom {
         workSnapshot.commentCount = numberUtils.removeCommaFromNum(queryData.stats.comments);
         workSnapshot.bookmarks = numberUtils.removeCommaFromNum(queryData.stats.bookmarks);
     }
-
-    parseStat(HTMLDom) {
-        let listOfDataLabel = HTMLDom.querySelectorAll("dl.stats dt");
-        let listOfDataValue = HTMLDom.querySelectorAll("dl.stats dd");
+    parseMetadata() {
+        const matchingUrlPart = (this.metadata.url).match(/works\/(?<workId>\d+)/);
+        this.metadata.workId = matchingUrlPart ? Number(matchingUrlPart.groups.workId): null;
+        //published date
+        this.metadata.published = this.dom.querySelector("dl.stats dd.status").textContent;
+        //author
+        this.metadata.author = this.dom.querySelector("div.preface.group h3.byline.heading a").textContent;
+        //title
+        this.metadata.title = this.dom.querySelector("div.preface.group h2.title.heading").textContent.trim();
+        //
+        console.log(this.metadata);
+    }
+    parseStat() {
+        let listOfDataLabel = this.dom.querySelectorAll("dl.stats dt");
+        let listOfDataValue = this.dom.querySelectorAll("dl.stats dd");
         for (let i = 0; i < listOfDataLabel.length; i++) {
             listOfDataLabel[i].textContent = (listOfDataLabel[i].textContent).toLowerCase().replace(":", "");
-            console.log(`${listOfDataLabel[i].textContent}: ${listOfDataValue[i].textContent}`);
             if (listOfDataLabel[i].textContent == "chapters") {
                 this.stats[listOfDataLabel[i].textContent] = this.parseAO3Chapter(listOfDataValue[i].textContent);
+                console.log(`ParsedChapter: ${this.parseAO3Chapter(listOfDataValue[i].textContent)}`);
+            } else {
+                this.stats[listOfDataLabel[i].textContent] = numberUtils.removeCommaFromNum(listOfDataValue[i].textContent);
             }
-            this.stats[listOfDataLabel[i].textContent] = listOfDataValue[i].textContent;
         }
         console.log(this.stats);
     }
