@@ -1,0 +1,39 @@
+.flex_col_center {
+    display:flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.grid_center {
+    display: grid;
+    align-items: center;
+    justify-content: center;
+}
+#main_div {
+    gap: 10px;
+    margin: 40px;
+}
+
+#track_btn {
+    width: 100px;
+    height: 40px;
+    font-size: 18px;
+    border-radius: 5px;
+}
+#track_btn:active {
+    background-color: white;
+}
+
+#link_form {
+    display:flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    
+}
+
+#link_input {
+    font-size: 18px;
+    margin: 10px;
+}
