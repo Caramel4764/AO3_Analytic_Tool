@@ -1,7 +1,7 @@
 import HTMLUtils from "./src/html.js";
-import queryData from "./src/queryData.js";
-import workMetadata from "./src/workMetadata.js";
-import workSnapshot from "./src/workSnapshot.js";
+import queryData from "./src/data/queryData.js";
+import workMetadata from "./src/data/workMetadata.js";
+import workSnapshot from "./src/data/workSnapshot.js";
 
 const linkInput = document.getElementById("link_input");
 const trackBtn = document.getElementById("track_btn");

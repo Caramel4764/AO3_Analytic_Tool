@@ -1,6 +1,6 @@
-import workMetadata from "./workMetadata.js";
-import workSnapshot from "./workSnapshot.js";
-import queryData from "./queryData.js";
+import workMetadata from "./data/workMetadata.js";
+import workSnapshot from "./data/workSnapshot.js";
+import queryData from "./data/queryData.js";
 
 async function fetchHTML(weblink) {
     let weblinkNoWarning = weblink+"?view_adult=true";
