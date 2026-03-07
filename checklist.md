@@ -2,7 +2,7 @@
 1. [X] Create webpage
 2. [X] Create server
 3. [X] Browser fetches AO3 page
-4. [] Parse the data
+4. [X] Parse the data
 5. [] Store data as snapshot in IndexedDB
 6. [] Display data in webpage
 7. [] Create Graph and stats

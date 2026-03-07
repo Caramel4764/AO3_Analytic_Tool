@@ -3,7 +3,11 @@ import numberUtils from "./numberUtils.js";
 class Ao3WorkDom {
     constructor(dom, url) {
         this.dom = dom;
-        this.stats = {
+        this.snapshot = {
+            timeStamp: "",
+            timeStampReadable: "",
+            workId: "",
+            snapshotId: "",
             hits: 0,
             kudos: 0,
             bookmarks: 0,
@@ -12,6 +16,8 @@ class Ao3WorkDom {
         }
         this.metadata = {
             workId: "",
+            timeStamp: "",
+            timeStampReadable: "",
             title: "", 
             author: "",
             url: "", 
@@ -21,24 +27,33 @@ class Ao3WorkDom {
         this.parseStat();
         this.parseMetadata()
     }
-    getStats() {
-        return this.stats;
+    getSnapshot() {
+        return this.snapshot;
+    }
+    getMetadata() {
+        return this.metadata;
     }
     getKudos() {
-        return this.stats.kudos;
+        return this.snapshot.kudos;
     }
     getHits() {
-        return this.stats.hits;
+        return this.snapshot.hits;
     }
     getBookmarks() {
-        return this.stats.bookmarks;
+        return this.snapshot.bookmarks;
     }
     getCommentCount() {
-        return this.stats.comments;
+        return this.snapshot.comments;
     }
     getChapterCount() {
-        return this.stats.chapters;
+        return this.snapshot.chapters;
     }
+    /** Extracts the chapter count from string. Currently this is the first number
+     * 
+     * @param {String} chapterString - The string returned by Ao3 (ie 1/5, 2/?)
+     * 
+     * @returns {Int} - the number of chapters
+     */
     parseAO3Chapter(chapterString) {
         let chapterInt = "";
         for (let i = 0; i < chapterString.length; i++) {
@@ -73,13 +88,11 @@ class Ao3WorkDom {
     parseMetadata() {
         const matchingUrlPart = (this.metadata.url).match(/works\/(?<workId>\d+)/);
         this.metadata.workId = matchingUrlPart ? Number(matchingUrlPart.groups.workId): null;
-        //published date
         this.metadata.published = this.dom.querySelector("dl.stats dd.status").textContent;
-        //author
         this.metadata.author = this.dom.querySelector("div.preface.group h3.byline.heading a").textContent;
-        //title
         this.metadata.title = this.dom.querySelector("div.preface.group h2.title.heading").textContent.trim();
-        //
+        this.metadata.timeStamp = Date.now();
+        this.metadata.timeStampReadable = new Date().toISOString();
         console.log(this.metadata);
     }
     parseStat() {
@@ -88,13 +101,16 @@ class Ao3WorkDom {
         for (let i = 0; i < listOfDataLabel.length; i++) {
             listOfDataLabel[i].textContent = (listOfDataLabel[i].textContent).toLowerCase().replace(":", "");
             if (listOfDataLabel[i].textContent == "chapters") {
-                this.stats[listOfDataLabel[i].textContent] = this.parseAO3Chapter(listOfDataValue[i].textContent);
-                console.log(`ParsedChapter: ${this.parseAO3Chapter(listOfDataValue[i].textContent)}`);
+                this.snapshot[listOfDataLabel[i].textContent] = this.parseAO3Chapter(listOfDataValue[i].textContent);
             } else {
-                this.stats[listOfDataLabel[i].textContent] = numberUtils.removeCommaFromNum(listOfDataValue[i].textContent);
+                this.snapshot[listOfDataLabel[i].textContent] = numberUtils.removeCommaFromNum(listOfDataValue[i].textContent);
             }
         }
-        console.log(this.stats);
+        this.snapshot.timeStamp = Date.now();
+        this.snapshot.snapshotId = this.snapshot.workId+Date.now();
+        this.snapshot.timeStampReadable = new Date().toISOString();
+
+        console.log(this.snapshot);
     }
 }
 
