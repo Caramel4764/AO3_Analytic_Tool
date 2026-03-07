@@ -1,6 +1,5 @@
 import workMetadata from "./data/workMetadata.js";
 import workSnapshot from "./data/workSnapshot.js";
-import queryData from "./data/queryData.js";
 
 /** Fetches HTML as string from url
  * 
