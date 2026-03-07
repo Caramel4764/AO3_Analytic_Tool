@@ -24,14 +24,17 @@ class Ao3WorkDom {
             published: ""
         }
         this.metadata.url = url;
+        this.parseMetadata();
         this.parseStat();
-        this.parseMetadata()
     }
     getSnapshot() {
         return this.snapshot;
     }
     getMetadata() {
         return this.metadata;
+    }
+    getSnapshotId() {
+        return this.snapshot.snapshotId;
     }
     getKudos() {
         return this.snapshot.kudos;
@@ -107,7 +110,8 @@ class Ao3WorkDom {
             }
         }
         this.snapshot.timeStamp = Date.now();
-        this.snapshot.snapshotId = this.snapshot.workId+Date.now();
+        this.snapshot.workId = this.metadata.workId;
+        this.snapshot.snapshotId = this.snapshot.workId+"-"+Date.now();
         this.snapshot.timeStampReadable = new Date().toISOString();
 
         console.log(this.snapshot);
