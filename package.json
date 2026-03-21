@@ -8,7 +8,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node backend/server.js",
     "dev": "nodemon backend/server.js",
-    "web": "http-server . -p 5500"
+    "web": "serve -p 5500"
   },
   "repository": {
     "type": "git",
@@ -23,6 +23,7 @@
   "homepage": "https://github.com/Caramel4764/AO3_Analytic_Tool#readme",
   "dependencies": {
     "cors": "^2.8.6",
+    "dotenv": "^17.3.1",
     "express": "^5.2.1",
     "node-fetch": "^3.3.2"
   }

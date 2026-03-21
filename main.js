@@ -1,14 +1,18 @@
 import HTMLParserUtil from "./src/HTMLParserUtil.js";
 import Ao3WorkDom from "./src/Ao3WorkDom.js";
 import scraperController from "./src/scraperController.js";
-
 const linkInput = document.getElementById("link_input");
 const trackBtn = document.getElementById("track_btn");
 const parseBtn = document.getElementById("parse_btn");
-let newAo3WorkDom;
 
+
+//let newAo3WorkDom;
 trackBtn.addEventListener('click', async function() {
-    let link = linkInput.value;
+    const res = await fetch('http://localhost:3000/testURL');
+    const data = await res.json();
+    let link;
+    link = data.apiKey;
+    //link = linkInput.value;
     try {
         //timer tick down
         scraperController.scrapeWebsite(link);
@@ -19,8 +23,7 @@ trackBtn.addEventListener('click', async function() {
 });
 
 parseBtn.addEventListener('click', function() {
-    newAo3WorkDom.getKudos();
-    //console.log(queryData.stats);
+    scraperController.displaySnapshots();
 })
 
 // look for indexDB and display if something is there
