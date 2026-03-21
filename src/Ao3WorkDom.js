@@ -9,12 +9,12 @@ import numberUtils from "./numberUtils.js";
  * @property {number} hits - Number of hits
  * @property {number} kudos - Number of kudos
  * @property {string} published - Original publication date of the work (YYYY-MM-DD)
- * @property {number} snapshotId - Unique id of the snapshot (workID-timeStamp)
+ * @property {number} snapshotId - Unique id of the snapshot (workId-timeStamp)
  * @property {number} timeStamp - Unix timestamp in milliseconds (Date.now())
  * @property {string} timeStampReadable - Human-readable version of timeStamp
  * @property {string} updated - Last updated date of the work (YYYY-MM-DD)
  * @property {number} words - Number of words
- * @property {number} workID - Id of the work
+ * @property {number} workId - Id of the work
  */
 class Ao3WorkDom {
     constructor(dom, url) {

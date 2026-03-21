@@ -9,13 +9,19 @@ async function scrapeWebsite (link) {
     let newAo3WorkDom = new Ao3WorkDom(HTMLDom, link);
     //store info
     //indexDB.clearSnapshot();
-    indexDB.addSnapshot(newAo3WorkDom.getSnapshot());
-    console.log("FoundSnapShot: ", indexDB.getSnapshot(newAo3WorkDom.getSnapshotId()));
-    console.log("AllSnapshots: ", indexDB.getAllSnapshots());
+    await indexDB.addSnapshot(newAo3WorkDom.getSnapshot());
+    await indexDB.addWork(newAo3WorkDom.getMetadata());
+    console.log("FoundSnapShot: ", await indexDB.getSnapshot(newAo3WorkDom.getSnapshotId()));
+    console.log("AllSnapshots: ", await indexDB.getAllSnapshots());
 }
 async function displaySnapshots() {
-    let allSnapshots = indexDB.getAllSnapshots();
-    console.log(allSnapshots);
+    let allSnapshots = await indexDB.getAllSnapshots();
+    if (!allSnapshots) {
+        return false;
+    }
+    let workMetadata = indexDB.findWork(allSnapshots[0].workId);
+    console.log("Snapshots: ", allSnapshots);
+    console.log("Metadata: ", workMetadata);
 }
 let scraperController = {
     scrapeWebsite,
