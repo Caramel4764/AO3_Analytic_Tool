@@ -13,14 +13,16 @@ function promiseRequest(request, customSuccessMessage="", customErrorMessage="")
 
 function openDB() {
     return new Promise((resolve, reject) => {
-        const DBRequest = indexedDB.open("ao3Data", 1);
+        const DBRequest = indexedDB.open("ao3Data", 2);
         DBRequest.onupgradeneeded = function(event) {
             const db = event.target.result;
             //creates a table named snapshots
             db.createObjectStore("snapshots", {
                 keyPath: "snapshotId"
             })
-            db.createObjectStore("metadata", {})
+            db.createObjectStore("metadata", {
+                keyPath: "workId"
+            })
         } 
         DBRequest.onsuccess = function (event) {
             const db = event.target.result;
@@ -68,16 +70,27 @@ async function clearSnapshot() {
     let request = snapshotStore.clear();
     return promiseRequest(request, "All snapshot cleared", "Could not delete all");
 }
-
-async function findWork(workID) {
-    let metadataStore = await getStore("snapshots");
-    let request = metadataStore.get(workID);
+async function addWork(metadata) {
+    //if the work doesn't already exist, then add
+    let foundWork = await findWork(metadata.workId);
+    if (foundWork == null) {
+        let metadataStore = await getStore("metadata");
+        let request = metadataStore.put(metadata);
+        return promiseRequest(request, "Successful added work", "Could not add work");
+    } else {
+        console.log("Work already exist. Will not add", foundWork)
+        return foundWork;
+    }
+}
+async function findWork(workId) {
+    let metadataStore = await getStore("metadata");
+    let request = metadataStore.get(workId);
     return promiseRequest(request, "Found Work", "Could not find snapshot");
 }
 
-async function removeWork(workID) {
-    let metadataStore = await getStore("snapshots");
-    let request = metadataStore.delete(workID);
+async function removeWork(workId) {
+    let metadataStore = await getStore("metadata");
+    let request = metadataStore.delete(workId);
     return promiseRequest(request, "Deleted Work", "Could not delete because work Id not found");
 }
 let indexDB = {
@@ -86,6 +99,7 @@ let indexDB = {
     removeSnapshot,
     findWork,
     removeWork,
+    addWork,
     getAllSnapshots,
     clearSnapshot
 }
