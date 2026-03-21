@@ -13,8 +13,12 @@ async function scrapeWebsite (link) {
     console.log("FoundSnapShot: ", indexDB.getSnapshot(newAo3WorkDom.getSnapshotId()));
     console.log("AllSnapshots: ", indexDB.getAllSnapshots());
 }
-
+async function displaySnapshots() {
+    let allSnapshots = indexDB.getAllSnapshots();
+    console.log(allSnapshots);
+}
 let scraperController = {
-    scrapeWebsite
+    scrapeWebsite,
+    displaySnapshots
 }
 export default scraperController

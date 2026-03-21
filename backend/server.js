@@ -6,6 +6,8 @@ import express from 'express';
 import fetch from 'node-fetch';
 //allows bypassing CORS
 import cors from "cors";
+//dotenv
+import 'dotenv/config';
 
 const app = express();
 app.use(cors());
@@ -28,4 +30,10 @@ app.get("/proxy", async (req, res) => {
   }
 });
 
-app.listen(3000, () => console.log("Server running on port 3000"));
+app.get("/testURL", async (req, res) => {
+  res.json({
+    apiKey: process.env.TEST_WORK_URL
+  })
+})
+
+app.listen(3000, () => console.log("Test: Server running on port 3000"));

@@ -1,5 +1,21 @@
 import HTMLParserUtil from "./HTMLParserUtil.js";
 import numberUtils from "./numberUtils.js";
+
+/**
+ * @typedef {Object} Snapshot
+ * @property {number} bookmarks - Number of bookmarks
+ * @property {number} chapters - Number of chapters
+ * @property {number} comments - Number of comments received
+ * @property {number} hits - Number of hits
+ * @property {number} kudos - Number of kudos
+ * @property {string} published - Original publication date of the work (YYYY-MM-DD)
+ * @property {number} snapshotId - Unique id of the snapshot (workID-timeStamp)
+ * @property {number} timeStamp - Unix timestamp in milliseconds (Date.now())
+ * @property {string} timeStampReadable - Human-readable version of timeStamp
+ * @property {string} updated - Last updated date of the work (YYYY-MM-DD)
+ * @property {number} words - Number of words
+ * @property {number} workID - Id of the work
+ */
 class Ao3WorkDom {
     constructor(dom, url) {
         this.dom = dom;
