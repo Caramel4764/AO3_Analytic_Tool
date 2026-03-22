@@ -37,6 +37,7 @@ async function displaySnapshot(index = -1) {
     if (!allSnapshots) {
         return false;
     }
+    //console.log(allSnapshots[snapshotIndex]);
     let workMetadata = await indexDB.findWork(allSnapshots[snapshotIndex].workId);
     console.log("Snapshots: ", allSnapshots);
     console.log("Metadata: ", workMetadata);
