@@ -1,3 +1,7 @@
+* {
+    font-family: Arial, Helvetica, sans-serif;
+}
+
 .flex_col_center {
     display:flex;
     flex-direction: column;
@@ -10,12 +14,27 @@
     align-items: center;
     justify-content: center;
 }
+.graph_div {
+    padding: 10px;
+    border-radius: 3%;
+    /*border: 3px red solid*/
+}
+.graph_div h3{
+    margin: 0;
+    margin-bottom: 10px;
+}
+#kudo_per_day_graph_div {
+    background-color: rgb(255, 239, 239);
+}
+#hit_per_day_graph_div {
+    background-color: rgb(236, 255, 236);
+}
 #stat_flex {
     display: flex;
     gap: 10px;
 }
 #stat_content {
-    background-color: lavender;
+    /*background-color: lavender;*/
 }
 #main_div {
     gap: 10px;
@@ -31,7 +50,14 @@
 #track_btn:active {
     background-color: white;
 }
-
+#basic_stat {
+    margin-bottom: 15px;
+}
+#graph_gallery {
+    display: grid;
+    gap: 10px;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+}
 #link_form {
     display:flex;
     flex-direction: column;

@@ -1,9 +1,9 @@
 let snapshots = [
     {
-        "timeStamp": 1774082739745,
+        "timeStamp": 1773810287000,
         "timeStampReadable": "2026-03-21T08:45:39.745Z",
         "workId": 123,
-        "snapshotId": "70864466-1774082739745",
+        "snapshotId": "70864466-1773810287000",
         "hits": 0,
         "kudos": 0,
         "bookmarks": 0,
@@ -14,10 +14,10 @@ let snapshots = [
         "words": 3000
     },
     {
-        "timeStamp": 1774082739745,
+        "timeStamp": 1773896687000,
         "timeStampReadable": "2026-03-21T08:45:39.745Z",
         "workId": 123,
-        "snapshotId": "70864466-1774082739745",
+        "snapshotId": "70864466-1773896687000",
         "hits": 1000,
         "kudos": 10,
         "bookmarks": 2,
@@ -28,10 +28,10 @@ let snapshots = [
         "words": 3000
     },
     {
-        "timeStamp": 1774082739745,
+        "timeStamp": 1773983087000,
         "timeStampReadable": "2026-03-21T08:45:39.745Z",
         "workId": 123,
-        "snapshotId": "70864466-1774082739745",
+        "snapshotId": "70864466-1773983087000",
         "hits": 1000,
         "kudos": 30,
         "bookmarks": 5,
@@ -42,12 +42,40 @@ let snapshots = [
         "words": 3000
     },
     {
-        "timeStamp": 1774082739745,
+        "timeStamp": 1774069487000,
         "timeStampReadable": "2026-03-21T08:45:39.745Z",
         "workId": 123,
-        "snapshotId": "70864466-1774082739745",
-        "hits": 7000,
-        "kudos": 45,
+        "snapshotId": "70864466-1774069487000",
+        "hits": 14000,
+        "kudos": 100,
+        "bookmarks": 7,
+        "comments": 2,
+        "chapters": 2,
+        "published": "2025-09-15",
+        "updated": "2026-01-04",
+        "words": 7000
+    },
+    {
+        "timeStamp": 1774242287000,
+        "timeStampReadable": "2026-03-21T08:45:39.745Z",
+        "workId": 123,
+        "snapshotId": "70864466-1774242287000",
+        "hits": 19000,
+        "kudos": 130,
+        "bookmarks": 7,
+        "comments": 2,
+        "chapters": 2,
+        "published": "2025-09-15",
+        "updated": "2026-01-04",
+        "words": 7000
+    },
+    {
+        "timeStamp": 1774328687000,
+        "timeStampReadable": "2026-03-21T08:45:39.745Z",
+        "workId": 123,
+        "snapshotId": "70864466-1774328687000",
+        "hits": 20000,
+        "kudos": 140,
         "bookmarks": 7,
         "comments": 2,
         "chapters": 2,
@@ -58,7 +86,7 @@ let snapshots = [
 ]
 let metadata = {
     "workId": 123,
-    "timeStamp": 1774082739744,
+    "timeStamp": 1773810287000,
     "timeStampReadable": "2026-03-21T08:45:39.744Z",
     "title": "Jack and the Beanstalk",
     "author": "Little mouse",

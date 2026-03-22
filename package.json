@@ -23,6 +23,7 @@
   "homepage": "https://github.com/Caramel4764/AO3_Analytic_Tool#readme",
   "dependencies": {
     "chart.js": "^4.5.1",
+    "chartjs-adapter-date-fns": "^3.0.0",
     "cors": "^2.8.6",
     "dotenv": "^17.3.1",
     "express": "^5.2.1",

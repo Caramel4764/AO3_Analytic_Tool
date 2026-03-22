@@ -25,12 +25,14 @@ function calculateEngagement(kudo, hits) {
     return ((kudo/hits)*100).toFixed(2)+"%";
 }
 //consider missing data later or day changes
-function metricPerDay(numArr, dateArr) {
-    let unitPerDay = [0];
-    for (let i = 1; i < numArr.length; i++) {
-        unitPerDay.push(numArr[i]-numArr[i-1]);
+function metricPerDay(metrics, startStatKey, endStatKey) {
+    for (let i = 0; i < metrics.length; i++) {
+        if (i == 0) {
+            metrics[i][endStatKey] = 0;
+        } else {
+            metrics[i][endStatKey] = metrics[i][startStatKey] - metrics[i-1][startStatKey];
+        }
     }
-    return unitPerDay;
 }
 let numberUtils = {
     removeCommaFromNum,

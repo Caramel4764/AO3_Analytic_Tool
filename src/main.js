@@ -26,5 +26,5 @@ trackBtn.addEventListener('click', async function() {
 parseBtn.addEventListener('click', function() {
     scraperController.displaySnapshot();
 })
-
+scraperController.displaySnapshot();
 // look for indexDB and display if something is there
