@@ -39,12 +39,18 @@ function convertMonthToText(monthNum) {
  * 
  * @returns {String} - first 3 char of month and day
  */
-function extractDayMonth(timestamp) {
+function extractDayMonth(timestamp, includeYear = false) {
+    let dateString;
     const date = new Date(timestamp);
     const month = date.getMonth()+1
     const day = date.getDate();
     const monthText = convertMonthToText(month);
-    return monthText+" "+day;
+    dateString = monthText+" "+day
+    if (includeYear) {
+        const year = date.getFullYear();
+        dateString+=", "+year;
+    }
+    return dateString;
 }
 
 let dateUtils = {
