@@ -14,11 +14,25 @@ import numberUtils from "./numberUtils.js";
  * @property {string} timeStampReadable - Human-readable version of timeStamp
  * @property {string} updated - Last updated date of the work (YYYY-MM-DD)
  * @property {number} words - Number of words
- * @property {number} workId - Id of the work
+ * @property {number} workId - Id of the work associated to this snapshot
  */
+
+/**
+ * @typedef {Object} Metadata
+ * @property {number} workId - Id of the work
+ * @property {number} timeStamp - Unix timestamp in milliseconds (Date.now())
+ * @property {string} timeStampReadable - Human-readable version of timeStamp
+ * @property {string} title - Title of the work
+ * @property {number} author - Number of words
+ * @property {number} url - Ao3 Url
+ * @property {number} published - Publish date (YYYY-MM-DD)
+ * 
+ */
+
 class Ao3WorkDom {
     constructor(dom, url) {
         this.dom = dom;
+        /** @type {Snapshot} */
         this.snapshot = {
             timeStamp: "",
             timeStampReadable: "",
@@ -30,6 +44,7 @@ class Ao3WorkDom {
             comments: 0,
             chapters: 0
         }
+        /** @type {Metadata} */
         this.metadata = {
             workId: "",
             timeStamp: "",

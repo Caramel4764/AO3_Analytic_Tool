@@ -24,8 +24,17 @@ function removeCommaFromNum(num) {
 function calculateEngagement(kudo, hits) {
     return ((kudo/hits)*100).toFixed(2)+"%";
 }
+//consider missing data later or day changes
+function metricPerDay(numArr, dateArr) {
+    let unitPerDay = [0];
+    for (let i = 1; i < numArr.length; i++) {
+        unitPerDay.push(numArr[i]-numArr[i-1]);
+    }
+    return unitPerDay;
+}
 let numberUtils = {
     removeCommaFromNum,
-    calculateEngagement
+    calculateEngagement,
+    metricPerDay
 }
 export default numberUtils;
