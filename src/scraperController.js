@@ -1,6 +1,17 @@
 import HTMLParserUtil from "./HTMLParserUtil.js";
 import Ao3WorkDom from "./Ao3WorkDom.js";
 import indexDB from "./indexDB.js";
+import HTMLUpdate from "./HTMLUpdate.js"
+import testingData from "./data/testingData.js"
+//testing scrapeWebsite
+/*function getDummyData () {
+    //fetch information
+    //store info
+    indexDB.addSnapshot(testingData.snapshots);
+    indexDB.addWork(testingData.metadata);
+    console.log("FoundSnapShot: ", indexDB.getSnapshot(newAo3WorkDom.getSnapshotId()));
+    console.log("AllSnapshots: ", indexDB.getAllSnapshots());
+}*/
 
 async function scrapeWebsite (link) {
     //fetch information
@@ -14,17 +25,25 @@ async function scrapeWebsite (link) {
     console.log("FoundSnapShot: ", await indexDB.getSnapshot(newAo3WorkDom.getSnapshotId()));
     console.log("AllSnapshots: ", await indexDB.getAllSnapshots());
 }
-async function displaySnapshots() {
+
+
+async function displaySnapshot(index = -1) {
     let allSnapshots = await indexDB.getAllSnapshots();
+    let snapshotIndex;
+    // if -1, find latest
+    if (index == -1) {
+        snapshotIndex = allSnapshots.length-1;
+    }
     if (!allSnapshots) {
         return false;
     }
-    let workMetadata = indexDB.findWork(allSnapshots[0].workId);
+    let workMetadata = await indexDB.findWork(allSnapshots[snapshotIndex].workId);
     console.log("Snapshots: ", allSnapshots);
     console.log("Metadata: ", workMetadata);
+    HTMLUpdate.updateStats(allSnapshots[snapshotIndex], workMetadata);
 }
 let scraperController = {
     scrapeWebsite,
-    displaySnapshots
+    displaySnapshot
 }
 export default scraperController

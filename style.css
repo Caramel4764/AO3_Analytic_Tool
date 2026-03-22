@@ -10,6 +10,13 @@
     align-items: center;
     justify-content: center;
 }
+#stat_flex {
+    display: flex;
+    gap: 10px;
+}
+#stat_content {
+    background-color: lavender;
+}
 #main_div {
     gap: 10px;
     margin: 40px;

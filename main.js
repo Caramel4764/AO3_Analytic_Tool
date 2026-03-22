@@ -23,7 +23,7 @@ trackBtn.addEventListener('click', async function() {
 });
 
 parseBtn.addEventListener('click', function() {
-    scraperController.displaySnapshots();
+    scraperController.displaySnapshot();
 })
 
 // look for indexDB and display if something is there
