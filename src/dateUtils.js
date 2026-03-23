@@ -40,7 +40,8 @@ function convertMonthToText(monthNum) {
  * @returns {String} - first 3 char of month and day
  */
 function extractDayMonth(timestamp, includeYear = false) {
-    let dateString;
+    /*let dateString;
+    console.log("TEST: ", timestamp)
     const date = new Date(timestamp);
     const month = date.getMonth()+1
     const day = date.getDate();
@@ -50,7 +51,9 @@ function extractDayMonth(timestamp, includeYear = false) {
         const year = date.getFullYear();
         dateString+=", "+year;
     }
-    return dateString;
+    return dateString;*/
+    const date = new Date(timestamp).toISOString().slice(0, 10);
+    return date;
 }
 
 let dateUtils = {
