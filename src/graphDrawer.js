@@ -3,14 +3,59 @@ import dateUtils from "./dateUtils.js"
 import Chart from 'chart.js/auto';
 import { _adapters } from 'chart.js';
 import 'chartjs-adapter-luxon';
+import testingData from "./data/testingData.js";
+import numberUtils from "./numberUtils.js";
+import indexDb from "./indexDB.js"
+const millisecondPerDay = 1000*60*60*24;
+
+/**
+ * @typedef {Object} GraphMetric 
+ * @property {string} timeStamps - Unix timestamp in milliseconds (Date.now())
+ * @property {string} dates_converted - String date intended for human reading (IE: Jan 1)
+ * @property {number} kudos - Number of kudos
+ * @property {number} kudosPerDay - Daily kudos
+ * @property {number} hits - Number of hits
+ * @property {number} hitsPerDay - Daily hits
+ * 
+ */
 
 //tracks if a graph has already been created
 let kudoChart = null;
 let hitsChart = null;
+/** @type {GraphMetric[]} */
+//let graphMetrics = [];
 
 const ctx_kudos = document.getElementById('kudo_per_day_graph');
 const ctx_hits = document.getElementById('hit_per_day_graph');
 
+/** Finds missing entries and replace it with null
+ * 
+ * @param {GraphMetric[]} metrics - Metric to add null
+ * @return {millisecondDiff} - Milliseconds of time in betwen before a entry is considered missing. Defaults to a day
+*/
+function missingMetricImputation(metrics, millisecondDiff = millisecondPerDay) {
+  let imputatedMetric = [];
+  for (let i = 0; i<metrics.length-1; i++) {
+    imputatedMetric.push(metrics[i]);
+    if (metrics[i+1].timeStamps - metrics[i].timeStamps > millisecondDiff) {
+      imputatedMetric.push({
+        timeStamps: null,
+        hits: null,
+        hitsPerDay: null,
+        kudos: null,
+        kudosPerDay: null,
+        dates_converted: null,
+      });
+    }
+  }
+  imputatedMetric.push(metrics[metrics.length-1]);
+  return imputatedMetric;
+}
+/** Takes prepared metric and creates the chart.js property for use
+ * 
+ * @param {GraphMetric[]} graphMetrics - Metrics
+ * @param {millisecondDiff} yAxisPropertyKey - Key to search y property
+*/
 function generateGraphDataset(graphMetrics, yAxisPropertyKey) {
   const fixedData = [];
   for (let i = 0; i < graphMetrics.length; i++) {
@@ -29,17 +74,51 @@ function generateGraphDataset(graphMetrics, yAxisPropertyKey) {
 }
 const skipped = (ctx, value) => ctx.p0.skip || ctx.p1.skip ? value : undefined;
 
-function updateKudoGraph(graphMetrics) {
+async function getMetrics(isTesting = false) {
+  let graphMetrics = [];
+  if (isTesting) {
+  for (let i = 0; i < testingData.snapshots.length; i++) {
+      let snapshot = testingData.snapshots[i];
+      let metric = {
+        timeStamps: snapshot.timeStamp,
+        kudos: snapshot.kudos,
+        hits: snapshot.hits
+      }
+      graphMetrics.push(metric);
+    }
+  } else {
+    let allSnapshots = await indexDb.getAllSnapshots();
+      for (let i = 0; i < allSnapshots.length; i++) {
+      let snapshot = allSnapshots[i];
+      let metric = {
+        timeStamps: snapshot.timeStamp,
+        kudos: snapshot.kudos,
+        hits: snapshot.hits
+      }
+      graphMetrics.push(metric);
+    }
+  }
+  return graphMetrics;
+}
+async function getGraphMetric(snapshot) {
+  //fetch data
+  let graphMetrics = await getMetrics();
+  graphMetrics = prepGraphData(graphMetrics);
+  return graphMetrics;
+}
+async function updateKudoGraph(snapshot) {
   if (kudoChart) {
     kudoChart.destroy();
   }
-  let fixedData = generateGraphDataset(graphMetrics, "kudosPerDay");
+  let graphMetrics = await getGraphMetric(snapshot);
+  let graphData = generateGraphDataset(graphMetrics, "kudosPerDay");
+  console.log("IMPOR: ", graphData)
   kudoChart = new Chart(ctx_kudos, {
     type: 'line',
     data: {
       datasets: [{
           label: 'Daily Kudos',
-          data: fixedData,
+          data: graphData,
           borderColor: "red",
           borderWidth: 2,
           tension: 0,
@@ -81,17 +160,18 @@ function updateKudoGraph(graphMetrics) {
   });
 }
 
-function updateHitGraph(graphMetrics) {
+async function updateHitGraph(snapshot) {
 if (hitsChart) {
     hitsChart.destroy();
   }
-  let fixedData = generateGraphDataset(graphMetrics, "hitsPerDay");
+  let graphMetrics = await getGraphMetric(snapshot);
+  let graphData = generateGraphDataset(graphMetrics, "hitsPerDay");
   hitsChart = new Chart(ctx_hits, {
     type: 'line',
     data: {
       datasets: [{
           label: 'Daily Hits',
-          data: fixedData,
+          data: graphData,
           borderColor: "#008a17",
           borderWidth: 2,
           tension: 0,
@@ -137,10 +217,26 @@ if (hitsChart) {
     }
   });
 }
+/** Takes a list of graphMetric and prepare it for display. Has null for missing data and calculated kudos/hits
+ * 
+ * @param {GraphMetric[]} graphMetrics - Snapshot to graph
+ * @return {GraphMetric[]} - Graph metric will null filled in for missing day
+*/
+function prepGraphData(graphMetrics) {
+  for (let i = 0; i < graphMetrics.length; i++) {
+    graphMetrics[i].dates_converted = dateUtils.extractDayMonth(graphMetrics[i].timeStamps, true);
+  }
+  numberUtils.metricPerDay(graphMetrics, "kudos", "kudosPerDay");
+  numberUtils.metricPerDay(graphMetrics, "hits", "hitsPerDay");
+  //
+  graphMetrics = missingMetricImputation(graphMetrics);
+  return graphMetrics;
+}
 
 let graphDrawer = {
   updateKudoGraph,
-  updateHitGraph
+  updateHitGraph,
+  prepGraphData
 }
 
 export default graphDrawer;

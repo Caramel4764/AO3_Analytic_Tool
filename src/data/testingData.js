@@ -32,7 +32,7 @@ let snapshots = [
         "timeStampReadable": "2026-03-21T08:45:39.745Z",
         "workId": 123,
         "snapshotId": "70864466-1773983087000",
-        "hits": 1000,
+        "hits": 6000,
         "kudos": 30,
         "bookmarks": 5,
         "comments": 1,
