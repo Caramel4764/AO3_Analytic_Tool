@@ -2,16 +2,6 @@ import HTMLParserUtil from "./HTMLParserUtil.js";
 import Ao3WorkDom from "./Ao3WorkDom.js";
 import indexDB from "./indexDB.js";
 import HTMLUpdate from "./HTMLUpdate.js"
-import testingData from "./data/testingData.js"
-//testing scrapeWebsite
-/*function getDummyData () {
-    //fetch information
-    //store info
-    indexDB.addSnapshot(testingData.snapshots);
-    indexDB.addWork(testingData.metadata);
-    console.log("FoundSnapShot: ", indexDB.getSnapshot(newAo3WorkDom.getSnapshotId()));
-    console.log("AllSnapshots: ", indexDB.getAllSnapshots());
-}*/
 
 async function scrapeWebsite (link) {
     //fetch information
@@ -41,7 +31,7 @@ async function displaySnapshot(index = -1) {
     let workMetadata = await indexDB.findWork(allSnapshots[snapshotIndex].workId);
     console.log("Snapshots: ", allSnapshots);
     console.log("Metadata: ", workMetadata);
-    HTMLUpdate.updateStats(allSnapshots[snapshotIndex], workMetadata);
+    HTMLUpdate.updateStats(snapshotIndex, allSnapshots, workMetadata);
 }
 let scraperController = {
     scrapeWebsite,
