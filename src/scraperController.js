@@ -2,18 +2,28 @@ import HTMLParserUtil from "./HTMLParserUtil.js";
 import Ao3WorkDom from "./Ao3WorkDom.js";
 import indexDB from "./indexDB.js";
 import HTMLUpdate from "./HTMLUpdate.js"
-
+import dateUtils from "./dateUtils.js"
 async function scrapeWebsite (link) {
     //fetch information
     let HTMLString = await HTMLParserUtil.fetchHTML(link)
     let HTMLDom = HTMLParserUtil.stringHTMLToDom(HTMLString);
     let newAo3WorkDom = new Ao3WorkDom(HTMLDom, link);
     //store info
-    //indexDB.clearSnapshot();
-    await indexDB.addSnapshot(newAo3WorkDom.getSnapshot());
-    await indexDB.addWork(newAo3WorkDom.getMetadata());
-    console.log("FoundSnapShot: ", await indexDB.getSnapshot(newAo3WorkDom.getSnapshotId()));
-    console.log("AllSnapshots: ", await indexDB.getAllSnapshots());
+    let allSnapshots = await indexDB.getAllSnapshots();
+    // 1 day cd
+    let prevSnap = allSnapshots[allSnapshots.length-1];
+    let currSnap = newAo3WorkDom.getSnapshot()
+    let doesWorkExistAlr = indexDB.doesWorkExist(newAo3WorkDom.getWorkId());
+    if (dateUtils.hasDayPassed(currSnap, prevSnap)) {
+        await indexDB.addSnapshot(currSnap);
+        if (!doesWorkExistAlr) {
+            await indexDB.addWork(newAo3WorkDom.getMetadata());
+        }
+        console.log("FoundSnapShot (Am i metadata): ", await indexDB.getSnapshot(newAo3WorkDom.getSnapshotId()));
+        console.log("AllSnapshots: ", allSnapshots);
+    } else {
+        alert("A day hasn't passed. Calm down");
+    }
 }
 
 

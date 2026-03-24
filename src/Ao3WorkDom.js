@@ -67,6 +67,9 @@ class Ao3WorkDom {
     getSnapshotId() {
         return this.snapshot.snapshotId;
     }
+    getWorkId() {
+        return this.metadata.workId;
+    }
     getKudos() {
         return this.snapshot.kudos;
     }

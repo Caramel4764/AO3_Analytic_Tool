@@ -1,4 +1,4 @@
-
+const millisecondPerDay = 1000*60*60*24;
 /** Turns month int into month string. 1 = Jan. 12 = Dec
  * 
  * @param {Number} monthNum - month in number
@@ -55,9 +55,22 @@ function extractDayMonth(timestamp, includeYear = false) {
     const date = new Date(timestamp).toISOString().slice(0, 10);
     return date;
 }
-
+/** Converts millisecond from Date.now into month date (IE: Jan 2)
+ * 
+ * @param {Number} currTime - Current time
+ * @param {Number} prevTime - Previous time
+ * 
+ * @returns {Boolean} - has a day passed
+ */
+function hasDayPassed(currTime, prevTime) {
+    if (currTime - prevTime > millisecondPerDay) {
+        return true;
+    }
+    return false;
+}
 let dateUtils = {
-    extractDayMonth
+    extractDayMonth,
+    hasDayPassed
 }
 
 export default dateUtils;

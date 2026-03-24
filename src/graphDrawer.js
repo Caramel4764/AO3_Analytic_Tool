@@ -28,6 +28,50 @@ let hitsChart = null;
 const ctx_kudos = document.getElementById('kudo_per_day_graph');
 const ctx_hits = document.getElementById('hit_per_day_graph');
 
+function createChartConfig({ label, data, color, tooltipLabel }) {
+  return {
+    type: 'line',
+    data: {
+      datasets: [{
+        clip: false,
+        label,
+        data,
+        borderColor: color,
+        borderWidth: 2,
+        tension: 0,
+        pointBackgroundColor: color,
+        pointRadius: 4,
+        segment: {
+          borderColor: ctx => skipped(ctx, 'rgb(0,0,0,0.2)'),
+          borderDash: ctx => skipped(ctx, [6, 6]),
+        },
+        spanGaps: true
+      }]
+    },
+    options: {
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          displayColors: false,
+          callbacks: {
+            title: (items) => {
+              const date = new Date(items[0].raw.x);
+              return date.toLocaleDateString(undefined, {
+                month: 'short', day: 'numeric', year: 'numeric'
+              });
+            },
+            label: (context) => `${tooltipLabel}: ${context.raw.y}`
+          }
+        }
+      },
+      scales: {
+        x: { type: 'time', time: { unit: 'day' } },
+        y: { min: 0, ticks: { precision: 0 } }
+      }
+    }
+  };
+}
+
 /** Finds missing entries and replace it with null
  * 
  * @param {GraphMetric[]} metrics - Metric to add null
@@ -74,6 +118,10 @@ function generateGraphDataset(graphMetrics, yAxisPropertyKey) {
 }
 const skipped = (ctx, value) => ctx.p0.skip || ctx.p1.skip ? value : undefined;
 
+/** Takes prepared metric and creates the chart.js property for use
+ * 
+ * @param {Boolean} isTesting - Include testinging value or real? False by default
+*/
 async function getMetrics(isTesting = false) {
   let graphMetrics = [];
   if (isTesting) {
@@ -100,8 +148,10 @@ async function getMetrics(isTesting = false) {
   }
   return graphMetrics;
 }
-async function getGraphMetric(snapshot) {
-  //fetch data
+/** Gets the graph metric and prepare it for use
+ * 
+*/
+async function getGraphMetric() {
   let graphMetrics = await getMetrics();
   graphMetrics = prepGraphData(graphMetrics);
   return graphMetrics;
@@ -112,110 +162,26 @@ async function updateKudoGraph(snapshot) {
   }
   let graphMetrics = await getGraphMetric(snapshot);
   let graphData = generateGraphDataset(graphMetrics, "kudosPerDay");
-  console.log("IMPOR: ", graphData)
-  kudoChart = new Chart(ctx_kudos, {
-    type: 'line',
-    data: {
-      datasets: [{
-          label: 'Daily Kudos',
-          data: graphData,
-          borderColor: "red",
-          borderWidth: 2,
-          tension: 0,
-          pointBackgroundColor: "red",
-          pointRadius: 4,
-          segment: {
-            borderColor: ctx => skipped(ctx, 'rgb(0,0,0,0.2)'),
-            borderDash: ctx => skipped(ctx, [6, 6]),
-          },
-          spanGaps: true // avoid connecting null which I fill in for missing data points
-      }]
-    },
-    options: {
-      plugins: {
-        legend: {
-          display: false
-        },
-        tooltip: {
-          displayColors: false,
-          callbacks: {
-            title: (items) => {
-              return items[0].raw.x;
-            },
-            label: (context) => {
-              return `Kudos: ${context.raw.y}`;
-            }
-          }
-        }
-      },
-      scales: {
-        x: {
-          type: 'time',
-          time: {
-            unit: 'day'
-          }
-        }
-      }
-    }
-  });
+  kudoChart = new Chart(ctx_kudos, createChartConfig({
+    label: 'Daily Kudos',
+    data: graphData,
+    color: 'red',
+    tooltipLabel: 'Kudos'
+  }));
 }
 
 async function updateHitGraph(snapshot) {
-if (hitsChart) {
+  if (hitsChart) {
     hitsChart.destroy();
   }
   let graphMetrics = await getGraphMetric(snapshot);
   let graphData = generateGraphDataset(graphMetrics, "hitsPerDay");
-  hitsChart = new Chart(ctx_hits, {
-    type: 'line',
-    data: {
-      datasets: [{
-          label: 'Daily Hits',
-          data: graphData,
-          borderColor: "#008a17",
-          borderWidth: 2,
-          tension: 0,
-          pointBackgroundColor: "#008a17",
-          pointRadius: 4,
-          segment: {
-            borderColor: ctx => skipped(ctx, 'rgb(0,0,0,0.2)'),
-            borderDash: ctx => skipped(ctx, [6, 6]),
-          },
-          spanGaps: true
-      }]
-    },
-    options: {
-      plugins: {
-        legend: {
-          display: false
-        },
-        tooltip: {
-          displayColors: false,
-          callbacks: {
-            title: (items) => {
-              const date = new Date(items[0].raw.x);
-              return date.toLocaleDateString(undefined, {
-                month: 'short',
-                day: 'numeric',
-                year: 'numeric'
-              });
-            },
-            label: (context) => {
-              return `Hits: ${context.raw.y}`;
-            }
-          }
-        }
-      },
-      scales: {
-        x: {
-          type: 'time',
-          time: {
-            unit: 'day'
-          }
-        }
-      }
-    }
-  });
+  hitsChart = new Chart(ctx_hits, createChartConfig({
+    label: 'Daily Hits',
+    data: graphData,
+    color: '#1751ff',
+    tooltipLabel: 'Hits'
+  }));
 }
 /** Takes a list of graphMetric and prepare it for display. Has null for missing data and calculated kudos/hits
  * 
