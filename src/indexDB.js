@@ -87,7 +87,20 @@ async function findWork(workId) {
     let request = metadataStore.get(workId);
     return promiseRequest(request, "Found Work", "Could not find snapshot");
 }
-
+async function getAllWork() {
+    let metadataStore = await getStore("metadata");
+    let request = metadataStore.getAll();
+    return promiseRequest(request, "Fetched all work", "Fetching all work failed")
+}
+async function doesWorkExist(workId) {
+    let allWork = await getAllWork();
+    for (let i = 0; i < allWork.length; i++) {
+        if (allWork[i].workId == workId) {
+            return true;
+        }
+    }
+    return false;
+}
 async function removeWork(workId) {
     let metadataStore = await getStore("metadata");
     let request = metadataStore.delete(workId);
@@ -101,7 +114,9 @@ let indexDB = {
     removeWork,
     addWork,
     getAllSnapshots,
-    clearSnapshot
+    clearSnapshot,
+    getAllWork,
+    doesWorkExist
 }
 
 export default indexDB;
