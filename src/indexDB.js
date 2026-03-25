@@ -1,4 +1,6 @@
-
+import testingData from "./data/testingData";
+import dateUtils from "./dateUtils";
+import testingConfig from "./testingConfig.js";
 function promiseRequest(request, customSuccessMessage="", customErrorMessage="") {
     return new Promise((resolve, reject)=> {
         request.onsuccess = () => {
@@ -52,11 +54,28 @@ async function getSnapshot(snapshotId) {
     let request = snapshotStore.get(snapshotId);
     return promiseRequest(request, "FoundSnapShot", "Could not find snapshot");
 }
+async function getAllSnapshotsFromWork(workId) {
+    let snapshots = await getAllSnapshots();
+    console.log("Snapshots: ", snapshots);
+    console.log("workID: ", workId);
 
+    let allSnapshotWithId = [];
+    for (let i = 0; i < snapshots.length; i++) {
+        let currSnap = snapshots[i];
+        if (currSnap.workId == workId) {
+            allSnapshotWithId.push(currSnap);
+        }
+    }
+    return allSnapshotWithId;
+}
 async function getAllSnapshots() {
-    let snapshotStore = await getStore("snapshots");
-    let request = snapshotStore.getAll();
-    return promiseRequest(request, "Fetched all snapshot", "Fetching all snapshots failed")
+    if (testingConfig.isTesting) {
+        return testingData.snapshots;
+    } else {
+        let snapshotStore = await getStore("snapshots");
+        let request = snapshotStore.getAll();
+        return promiseRequest(request, "Fetched all snapshot", "Fetching all snapshots failed")
+    }
 }
 
 async function removeSnapshot(snapshotId) {
@@ -69,6 +88,48 @@ async function clearSnapshot() {
     let snapshotStore = await getStore("snapshots");
     let request = snapshotStore.clear();
     return promiseRequest(request, "All snapshot cleared", "Could not delete all");
+}
+async function getAllUniqueSnapshotDate(workId) {
+    let allSnapshots = await getAllSnapshots();
+    let uniqueDates = new Set();
+    for (let i = 0; i < allSnapshots.length-1; i++) {
+        let currSnap = allSnapshots[i];
+        //if not snapshot of this work, skip to next
+        if (currSnap.workId != workId) {
+            continue;
+        }
+        let currDate = dateUtils.timeStampToReadable(currSnap.timeStamp);
+        // if doesn't exist, add it.
+        if (!uniqueDates.has(currDate)) {
+            uniqueDates.add(currDate);
+        }
+    }
+    return uniqueDates;
+}
+async function doesSnapshotDateExist(snapshot) {
+    let allUniqueDate = await getAllUniqueSnapshotDate(snapshot.workId);
+    let readableDate = dateUtils.timeStampToReadable(snapshot.timeStamp);
+    if (allUniqueDate.has(readableDate)){
+        return true;
+    } else {
+        return false;
+    }
+}
+//if multiple timestamp have the same date, only the first will be kept
+async function cleanSameDaySnapshot() {
+    let allSnapshots = await getAllSnapshots();
+    let allWorks = await getAllWork();
+    for (let j = 0; j < allWorks.length(); j++) {
+        let currWork = allWorks[j];
+        let uniqueDates = await getAllUniqueSnapshotDate(currWork.workId);
+        for (let i = 0; i < allSnapshots.length-1; i++) {
+            let currSnap = allSnapshots[i];
+            let currDate = dateUtils.timeStampToReadable(currSnap.timeStamp);
+            if (uniqueDates.has(currDate)) {
+                removeSnapshot(currSnap.snapshotId);
+            }
+        }
+    }
 }
 async function addWork(metadata) {
     //if the work doesn't already exist, then add
@@ -83,14 +144,27 @@ async function addWork(metadata) {
     }
 }
 async function findWork(workId) {
-    let metadataStore = await getStore("metadata");
-    let request = metadataStore.get(workId);
-    return promiseRequest(request, "Found Work", "Could not find snapshot");
+    if (testingConfig.isTesting) {
+        for (let i = 0; i<testingData.metadata.length;i++) {
+            if (testingData.metadata[i].workId == workId) {
+                return testingData.metadata[i];
+            }
+        }
+        return false;
+    } else {
+        let metadataStore = await getStore("metadata");
+        let request = metadataStore.get(workId);
+        return promiseRequest(request, "Found Work", "Could not find snapshot");
+    }
 }
 async function getAllWork() {
-    let metadataStore = await getStore("metadata");
-    let request = metadataStore.getAll();
-    return promiseRequest(request, "Fetched all work", "Fetching all work failed")
+    if (testingConfig.isTesting) {
+        return testingData.metadata;
+    } else {
+        let metadataStore = await getStore("metadata");
+        let request = metadataStore.getAll();
+        return promiseRequest(request, "Fetched all work", "Fetching all work failed")
+    }
 }
 async function doesWorkExist(workId) {
     let allWork = await getAllWork();
@@ -106,6 +180,7 @@ async function removeWork(workId) {
     let request = metadataStore.delete(workId);
     return promiseRequest(request, "Deleted Work", "Could not delete because work Id not found");
 }
+
 let indexDB = {
     addSnapshot,
     getSnapshot,
@@ -116,7 +191,10 @@ let indexDB = {
     getAllSnapshots,
     clearSnapshot,
     getAllWork,
-    doesWorkExist
+    doesWorkExist,
+    cleanSameDaySnapshot,
+    doesSnapshotDateExist,
+    getAllSnapshotsFromWork
 }
 
 export default indexDB;

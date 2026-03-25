@@ -14,10 +14,13 @@ async function scrapeWebsite (link) {
     let prevSnap = allSnapshots[allSnapshots.length-1];
     let currSnap = newAo3WorkDom.getSnapshot()
     let doesWorkExistAlr = indexDB.doesWorkExist(newAo3WorkDom.getWorkId());
-    if (dateUtils.hasDayPassed(currSnap, prevSnap)) {
+    //indexDB.cleanSameDaySnapshot();
+    if (dateUtils.isNewDate(currSnap)) {
         await indexDB.addSnapshot(currSnap);
         if (!doesWorkExistAlr) {
             await indexDB.addWork(newAo3WorkDom.getMetadata());
+        } else {
+            console.log("Work already exists");
         }
         console.log("FoundSnapShot (Am i metadata): ", await indexDB.getSnapshot(newAo3WorkDom.getSnapshotId()));
         console.log("AllSnapshots: ", allSnapshots);
@@ -27,8 +30,8 @@ async function scrapeWebsite (link) {
 }
 
 
-async function displaySnapshot(index = -1) {
-    let allSnapshots = await indexDB.getAllSnapshots();
+async function displaySnapshot(workId, index = -1) {
+    let allSnapshots = await indexDB.getAllSnapshotsFromWork(workId);
     let snapshotIndex;
     // if -1, find latest
     if (index == -1) {
@@ -41,6 +44,8 @@ async function displaySnapshot(index = -1) {
     let workMetadata = await indexDB.findWork(allSnapshots[snapshotIndex].workId);
     console.log("Snapshots: ", allSnapshots);
     console.log("Metadata: ", workMetadata);
+    let allMetadata = await indexDB.getAllWork();
+    console.log("All metadata: ", allMetadata);
     HTMLUpdate.updateStats(snapshotIndex, allSnapshots, workMetadata);
 }
 let scraperController = {

@@ -16,6 +16,34 @@ let snapshots = [
     {
         "timeStamp": 1773896687000,
         "timeStampReadable": "2026-03-21T08:45:39.745Z",
+        "workId": 456,
+        "snapshotId": "70864466-1773896687000",
+        "hits": 10000,
+        "kudos": 30,
+        "bookmarks": 7,
+        "comments": 2,
+        "chapters": 2,
+        "published": "2025-09-15",
+        "updated": "2026-01-04",
+        "words": 7000
+    },
+    {
+        "timeStamp": 1774328687000,
+        "timeStampReadable": "2026-03-21T08:45:39.745Z",
+        "workId": 456,
+        "snapshotId": "70864466-1774328687000",
+        "hits": 20000,
+        "kudos": 140,
+        "bookmarks": 7,
+        "comments": 2,
+        "chapters": 2,
+        "published": "2025-09-15",
+        "updated": "2026-01-04",
+        "words": 7000
+    },
+    {
+        "timeStamp": 1773896687000,
+        "timeStampReadable": "2026-03-21T08:45:39.745Z",
         "workId": 123,
         "snapshotId": "70864466-1773896687000",
         "hits": 1000,
@@ -84,7 +112,7 @@ let snapshots = [
         "words": 7000
     },
 ]
-let metadata = {
+let metadata = [{
     "workId": 123,
     "timeStamp": 1773810287000,
     "timeStampReadable": "2026-03-21T08:45:39.744Z",
@@ -92,7 +120,15 @@ let metadata = {
     "author": "Little mouse",
     "url": "https://archiveofourown.org/",
     "published": "2026-01-04"
-}
+}, {
+    "workId": 456,
+    "timeStamp": 1773810287000,
+    "timeStampReadable": "2026-03-21T08:45:39.744Z",
+    "title": "Little Red Riding Hood",
+    "author": "Cookie",
+    "url": "https://archiveofourown.org/",
+    "published": "2026-01-04"
+}]
 let testingData = {
     metadata,
     snapshots
