@@ -89,7 +89,7 @@ async function clearSnapshot() {
 async function getAllUniqueSnapshotDate(workId) {
     let allSnapshots = await getAllSnapshots();
     let uniqueDates = new Set();
-    for (let i = 0; i < allSnapshots.length-1; i++) {
+    for (let i = 0; i < allSnapshots.length; i++) {
         let currSnap = allSnapshots[i];
         //if not snapshot of this work, skip to next
         if (currSnap.workId != workId) {
@@ -109,6 +109,9 @@ async function doesSnapshotDateExist(snapshot) {
     if (allUniqueDate.has(readableDate)){
         return true;
     } else {
+        console.log("SET: ", allUniqueDate);
+        console.log("LOOKING FOR: ", readableDate);
+
         return false;
     }
 }

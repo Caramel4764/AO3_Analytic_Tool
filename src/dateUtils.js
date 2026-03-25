@@ -71,9 +71,10 @@ function hasMillisecondPassed(currTime, prevTime, millisecondDiff) {
     return false;
 }
 function isNewDate(snapshot) {
-    if(indexDB.doesSnapshotDateExist(snapshot.timeStamp)){
+    if(indexDB.doesSnapshotDateExist(snapshot)){
         return false;
     }
+    console.log("HERE")
     return true;
 }
 let dateUtils = {

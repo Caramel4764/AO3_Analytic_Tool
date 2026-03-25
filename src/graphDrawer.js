@@ -7,6 +7,9 @@ import testingData from "./data/testingData.js";
 import numberUtils from "./numberUtils.js";
 import indexDb from "./indexDB.js"
 import testingConfig from "./testingConfig.js"
+import annotationPlugin from 'chartjs-plugin-annotation';
+Chart.register(annotationPlugin);
+
 const millisecondPerDay = 1000*60*60*24;
 const isTesting = true;
 /**
@@ -29,7 +32,8 @@ let hitsChart = null;
 const ctx_kudos = document.getElementById('kudo_per_day_graph');
 const ctx_hits = document.getElementById('hit_per_day_graph');
 
-function createChartConfig({ label, data, color, tooltipLabel }) {
+function createChartConfig({ label, data, color, tooltipLabel, snapshots, newChapterColor, getChartCallback }) {
+  let annotations = generateAnnotations(snapshots, getChartCallback, newChapterColor)
   return {
     type: 'line',
     data: {
@@ -42,6 +46,7 @@ function createChartConfig({ label, data, color, tooltipLabel }) {
         tension: 0,
         pointBackgroundColor: color,
         pointRadius: 4,
+        order: 0,
         segment: {
           borderColor: ctx => skipped(ctx, 'rgb(0,0,0,0.2)'),
           borderDash: ctx => skipped(ctx, [6, 6]),
@@ -51,12 +56,14 @@ function createChartConfig({ label, data, color, tooltipLabel }) {
     },
     options: {
       plugins: {
+        annotation: { annotations },
         legend: { display: false },
         tooltip: {
           displayColors: false,
           callbacks: {
             title: (items) => {
-              const date = new Date(items[0].raw.x);
+              const [year, month, day] = items[0].raw.x.split('-');
+              const date = new Date(year, month - 1, day);
               return date.toLocaleDateString(undefined, {
                 month: 'short', day: 'numeric', year: 'numeric'
               });
@@ -78,11 +85,12 @@ function createChartConfig({ label, data, color, tooltipLabel }) {
  * @param {GraphMetric[]} metrics - Metric to add null
  * @return {millisecondDiff} - Milliseconds of time in betwen before a entry is considered missing. Defaults to a day
 */
-function missingMetricImputation(metrics, millisecondDiff = millisecondPerDay) {
+//[FIX HERE. NOT MILLISECONDS BUT UNIQUE DATE]
+function missingMetricImputation(metrics, millisecondDiff = 2*millisecondPerDay) {
   let imputatedMetric = [];
   for (let i = 0; i<metrics.length-1; i++) {
     imputatedMetric.push(metrics[i]);
-    if (metrics[i+1].timeStamps - metrics[i].timeStamps > millisecondDiff) {
+    if (metrics[i+1].timeStamps - metrics[i].timeStamps >= millisecondDiff) {
       imputatedMetric.push({
         timeStamps: null,
         hits: null,
@@ -96,6 +104,55 @@ function missingMetricImputation(metrics, millisecondDiff = millisecondPerDay) {
   imputatedMetric.push(metrics[metrics.length-1]);
   return imputatedMetric;
 }
+
+function generateAnnotations(snapshots, getChart, newChapterColor) {
+  let newChapterSnapshots = [];
+  for (let i = 1; i < snapshots.length; i++) {
+    let currSnap = snapshots[i];
+    let prevSnap = snapshots[i-1];
+    //if book mark has changed
+    if (currSnap.chapters != prevSnap.chapters) {
+      newChapterSnapshots.push(currSnap);
+    }
+  }
+  let annotations = Object.fromEntries(
+    newChapterSnapshots.map((snapshot) => [
+      `chapter${snapshot.chapters}`,           // unique key
+      {
+        type: 'line',
+        z: -1,
+        drawTime: 'beforeDatasetsDraw',
+        xMin: dateUtils.timeStampToReadable(snapshot.timeStamp, true),
+        xMax: dateUtils.timeStampToReadable(snapshot.timeStamp, true),
+        borderColor: newChapterColor,
+        borderWidth: 4,
+        display: true,
+        label: {
+          content: `Chapter ${snapshot.chapters}`,
+          display: false,
+        },
+        enter() { 
+          let chart = getChart();
+          let annotation = chart.options.plugins.annotation.annotations[`chapter${snapshot.chapters}`]
+          //if (annotation.label.display === true) return;
+          annotation.label.display = true;
+          //annotation.borderWidth = 3;
+          chart.update('none');
+        },
+        leave() {
+          let chart = getChart();
+          let annotation = chart.options.plugins.annotation.annotations[`chapter${snapshot.chapters}`]
+          //if (annotation.label.display === true) return;
+          annotation.label.display = false;
+          //annotation.borderWidth = 4;
+          chart.update('none');
+        },
+      }
+    ])
+  );
+  return annotations;
+}
+
 /** Takes prepared metric and creates the chart.js property for use
  * 
  * @param {GraphMetric[]} graphMetrics - Metrics
@@ -154,7 +211,10 @@ async function updateKudoGraph(snapshots) {
     label: 'Daily Kudos',
     data: graphData,
     color: 'red',
-    tooltipLabel: 'Kudos'
+    tooltipLabel: 'Kudos',
+    snapshots: snapshots,
+    newChapterColor: "#fcdada",
+    getChartCallback: () => kudoChart
   }));
 }
 
@@ -168,7 +228,10 @@ async function updateHitGraph(snapshots) {
     label: 'Daily Hits',
     data: graphData,
     color: '#1751ff',
-    tooltipLabel: 'Hits'
+    tooltipLabel: 'Hits',
+    snapshots: snapshots,
+    newChapterColor: "#d6e1ff",
+    getChartCallback: () => hitsChart
   }));
 }
 /** Takes a list of graphMetric and prepare it for display. Has null for missing data and calculated kudos/hits

@@ -111,6 +111,20 @@ let snapshots = [
         "updated": "2026-01-04",
         "words": 7000
     },
+        {
+        "timeStamp": 1774455076000,
+        "timeStampReadable": "2026-03-21T08:45:39.745Z",
+        "workId": 123,
+        "snapshotId": "70864466-1774455076000",
+        "hits": 25000,
+        "kudos": 200,
+        "bookmarks": 7,
+        "comments": 2,
+        "chapters": 3,
+        "published": "2025-09-15",
+        "updated": "2026-01-04",
+        "words": 10000
+    },
 ]
 let metadata = [{
     "workId": 123,
