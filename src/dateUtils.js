@@ -1,3 +1,5 @@
+import indexDB from "./indexDB";
+
 const millisecondPerDay = 1000*60*60*24;
 /** Turns month int into month string. 1 = Jan. 12 = Dec
  * 
@@ -39,7 +41,7 @@ function convertMonthToText(monthNum) {
  * 
  * @returns {String} - first 3 char of month and day
  */
-function extractDayMonth(timestamp, includeYear = false) {
+function timeStampToReadable(timestamp) {
     /*let dateString;
     console.log("TEST: ", timestamp)
     const date = new Date(timestamp);
@@ -62,15 +64,22 @@ function extractDayMonth(timestamp, includeYear = false) {
  * 
  * @returns {Boolean} - has a day passed
  */
-function hasDayPassed(currTime, prevTime) {
-    if (currTime - prevTime > millisecondPerDay) {
+function hasMillisecondPassed(currTime, prevTime, millisecondDiff) {
+    if (currTime - prevTime > millisecondDiff) {
         return true;
     }
     return false;
 }
+function isNewDate(snapshot) {
+    if(indexDB.doesSnapshotDateExist(snapshot.timeStamp)){
+        return false;
+    }
+    return true;
+}
 let dateUtils = {
-    extractDayMonth,
-    hasDayPassed
+    timeStampToReadable,
+    hasMillisecondPassed,
+    isNewDate
 }
 
 export default dateUtils;
