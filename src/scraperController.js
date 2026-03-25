@@ -15,7 +15,7 @@ async function scrapeWebsite (link) {
     let currSnap = newAo3WorkDom.getSnapshot()
     let doesWorkExistAlr = indexDB.doesWorkExist(newAo3WorkDom.getWorkId());
     //indexDB.cleanSameDaySnapshot();
-    if (dateUtils.isNewDate(currSnap)) {
+    if (!indexDB.doesSnapshotDateExist(currSnap)) {
         await indexDB.addSnapshot(currSnap);
         if (!doesWorkExistAlr) {
             await indexDB.addWork(newAo3WorkDom.getMetadata());
@@ -32,6 +32,7 @@ async function scrapeWebsite (link) {
 
 async function displaySnapshot(workId, index = -1) {
     let allSnapshots = await indexDB.getAllSnapshotsFromWork(workId);
+    console.log("TEST:", allSnapshots)
     let snapshotIndex;
     // if -1, find latest
     if (index == -1) {
@@ -40,6 +41,7 @@ async function displaySnapshot(workId, index = -1) {
     if (!allSnapshots) {
         return false;
     }
+    console.log("ALL SNAP: ", allSnapshots)
     //console.log(allSnapshots[snapshotIndex]);
     let workMetadata = await indexDB.findWork(allSnapshots[snapshotIndex].workId);
     console.log("Snapshots: ", allSnapshots);
