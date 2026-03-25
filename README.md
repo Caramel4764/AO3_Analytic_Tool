@@ -8,13 +8,15 @@ A local web scaper that tracks the history of a given AO3 work through link. It 
 - Basic chart.js graph
 - Clean human readable dates
 - Display current name, kudos, hits, and calculated engagement
+- Display works in graph format that can switch
+- If a day or days are missed, the graph uses gray dashed line to show missing data
+- Chapters are indicated by vertical line
+
 
 ## Todo list/functional
 - Calculate analytic
 - Add documentation
-- Indicate chapter updates
 - Allow sorting of update by metrics like date (and maybe daily kudo count, etc)
-- Create graph graphics
 - Turn into extension
 - Email report of tracked work with user specified frequency
 - Remove a work
@@ -22,5 +24,4 @@ A local web scaper that tracks the history of a given AO3 work through link. It 
 
 ## Possible edge cases
 - Consider edge case when work name changes
-- What if a day was missed. What if multiple days?
 - What if a day gets counted twice?
