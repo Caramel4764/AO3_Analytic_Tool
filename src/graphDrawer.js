@@ -6,8 +6,9 @@ import 'chartjs-adapter-luxon';
 import testingData from "./data/testingData.js";
 import numberUtils from "./numberUtils.js";
 import indexDb from "./indexDB.js"
+import testingConfig from "./testingConfig.js"
 const millisecondPerDay = 1000*60*60*24;
-
+const isTesting = true;
 /**
  * @typedef {Object} GraphMetric 
  * @property {string} timeStamps - Unix timestamp in milliseconds (Date.now())
@@ -122,45 +123,32 @@ const skipped = (ctx, value) => ctx.p0.skip || ctx.p1.skip ? value : undefined;
  * 
  * @param {Boolean} isTesting - Include testinging value or real? False by default
 */
-async function getMetrics(isTesting = false) {
+async function getMetrics(snapshots, isTesting = false) {
   let graphMetrics = [];
-  if (isTesting) {
-  for (let i = 0; i < testingData.snapshots.length; i++) {
-      let snapshot = testingData.snapshots[i];
-      let metric = {
-        timeStamps: snapshot.timeStamp,
-        kudos: snapshot.kudos,
-        hits: snapshot.hits
-      }
-      graphMetrics.push(metric);
+  for (let i = 0; i < snapshots.length; i++) {
+    let snapshot = snapshots[i];
+    let metric = {
+      timeStamps: snapshot.timeStamp,
+      kudos: snapshot.kudos,
+      hits: snapshot.hits
     }
-  } else {
-    let allSnapshots = await indexDb.getAllSnapshots();
-      for (let i = 0; i < allSnapshots.length; i++) {
-      let snapshot = allSnapshots[i];
-      let metric = {
-        timeStamps: snapshot.timeStamp,
-        kudos: snapshot.kudos,
-        hits: snapshot.hits
-      }
-      graphMetrics.push(metric);
-    }
+    graphMetrics.push(metric);
   }
   return graphMetrics;
 }
 /** Gets the graph metric and prepare it for use
  * 
 */
-async function getGraphMetric() {
-  let graphMetrics = await getMetrics();
+async function getGraphMetric(snapshots) {
+  let graphMetrics = await getMetrics(snapshots);
   graphMetrics = prepGraphData(graphMetrics);
   return graphMetrics;
 }
-async function updateKudoGraph(snapshot) {
+async function updateKudoGraph(snapshots) {
   if (kudoChart) {
     kudoChart.destroy();
   }
-  let graphMetrics = await getGraphMetric(snapshot);
+  let graphMetrics = await getGraphMetric(snapshots);
   let graphData = generateGraphDataset(graphMetrics, "kudosPerDay");
   kudoChart = new Chart(ctx_kudos, createChartConfig({
     label: 'Daily Kudos',
@@ -170,11 +158,11 @@ async function updateKudoGraph(snapshot) {
   }));
 }
 
-async function updateHitGraph(snapshot) {
+async function updateHitGraph(snapshots) {
   if (hitsChart) {
     hitsChart.destroy();
   }
-  let graphMetrics = await getGraphMetric(snapshot);
+  let graphMetrics = await getGraphMetric(snapshots);
   let graphData = generateGraphDataset(graphMetrics, "hitsPerDay");
   hitsChart = new Chart(ctx_hits, createChartConfig({
     label: 'Daily Hits',
@@ -190,7 +178,7 @@ async function updateHitGraph(snapshot) {
 */
 function prepGraphData(graphMetrics) {
   for (let i = 0; i < graphMetrics.length; i++) {
-    graphMetrics[i].dates_converted = dateUtils.extractDayMonth(graphMetrics[i].timeStamps, true);
+    graphMetrics[i].dates_converted = dateUtils.timeStampToReadable(graphMetrics[i].timeStamps, true);
   }
   numberUtils.metricPerDay(graphMetrics, "kudos", "kudosPerDay");
   numberUtils.metricPerDay(graphMetrics, "hits", "hitsPerDay");
