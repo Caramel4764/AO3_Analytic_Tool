@@ -22,7 +22,6 @@ export interface Snapshot {
     comments: number;
     hits: number;
     kudos: number;
-    published?: string;
     snapshotId: string;
     timeStamp: number;
     timeStampReadable: string;
@@ -52,10 +51,33 @@ export interface Metadata {
     url: string;
     published: string;
 }
+/**
+ * @typedef {Object} GraphMetric 
+ * @property {number} timeStamps - Unix timestamp in milliseconds (Date.now())
+ * @property {string} dates_converted - String date intended for human reading (IE: Jan 1)
+ * @property {number} kudos - Number of kudos
+ * @property {number} kudosPerDay - Daily kudos
+ * @property {number} hits - Number of hits
+ * @property {number} hitsPerDay - Daily hits
+ * 
+*/
+export interface GraphMetric {
+    timeStamps: number,
+    dates_converted: string,
+    kudos: number,
+    kudosPerDay: number,
+    hits: number,
+    hitsPerDay: number
+}
+export interface GraphData {
+    x: string,
+    y: number,
+    skip: boolean,
+}
 
 export interface ChartConfigParam {
     label: string;
-    data: { x: string; y: number }[];
+    data: GraphData[];
     color: string;
     tooltipLabel: string;
     snapshots: Snapshot[];

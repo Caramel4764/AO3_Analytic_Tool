@@ -9,13 +9,13 @@ let hitCount = document.getElementById("hit_count");
 let engagementCount = document.getElementById("engagement_count");
 let titleHeader = document.getElementById("work_title");
 
-function updateTitle(title) {
+function updateTitle(title):void {
   titleHeader.textContent = title;
 }
-function updateHit(hit) {
+function updateHit(hit):void {
   hitCount.textContent = hit;
 }
-function updateKudo(kudo) {
+function updateKudo(kudo):void {
   kudoCount.textContent = kudo;
 }
 /** Fill in missing data with null based on day

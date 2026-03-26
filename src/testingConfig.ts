@@ -1,5 +1,5 @@
-let testingConfig = {
-  isTesting: true
-}
+// let testingConfig = {
+//   isTesting: true
+// }
 
-export default testingConfig;
+// export default testingConfig;

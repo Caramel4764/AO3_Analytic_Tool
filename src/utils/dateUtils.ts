@@ -1,3 +1,4 @@
+import type { Snapshot } from "../data/types";
 import indexDB from "../indexDB";
 
 const millisecondPerDay = 1000*60*60*24;
@@ -7,7 +8,7 @@ const millisecondPerDay = 1000*60*60*24;
  * 
  * @returns {String} - month in string with first 3 char
  */
-function convertMonthToText(monthNum) {
+function convertMonthToText(monthNum:number): string {
         switch(monthNum){
         case 1:
             return "Jan";
@@ -35,25 +36,13 @@ function convertMonthToText(monthNum) {
             return "Dec";
     }
 }
-/** Converts millisecond from Date.now into month date (IE: Jan 2)
+/** Turns timestamp into human readable (mm-dd-yyyy) using ISO
  * 
- * @param {Number} monthNum - Date.now
+ * @param {Number} timestamp - Date.now
  * 
- * @returns {String} - first 3 char of month and day
+ * @returns {String} - Human readable date (mm-dd-yyyy)
  */
-function timeStampToReadable(timestamp) {
-    /*let dateString;
-    console.log("TEST: ", timestamp)
-    const date = new Date(timestamp);
-    const month = date.getMonth()+1
-    const day = date.getDate();
-    const monthText = convertMonthToText(month);
-    dateString = monthText+" "+day
-    if (includeYear) {
-        const year = date.getFullYear();
-        dateString+=", "+year;
-    }
-    return dateString;*/
+function timeStampToReadable(timestamp:number):string {
     const date = new Date(timestamp).toISOString().slice(0, 10);
     return date;
 }
@@ -64,17 +53,16 @@ function timeStampToReadable(timestamp) {
  * 
  * @returns {Boolean} - has a day passed
  */
-function hasMillisecondPassed(currTime, prevTime, millisecondDiff) {
+function hasMillisecondPassed(currTime:number, prevTime:number, millisecondDiff:number): boolean {
     if (currTime - prevTime > millisecondDiff) {
         return true;
     }
     return false;
 }
-function isNewDate(snapshot) {
+function isNewDate(snapshot:Snapshot):boolean {
     if(indexDB.doesSnapshotDateExist(snapshot)){
         return false;
     }
-    console.log("HERE")
     return true;
 }
 let dateUtils = {
