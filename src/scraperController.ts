@@ -1,8 +1,8 @@
-import HTMLParserUtil from "./HTMLParserUtil.js";
-import Ao3WorkDom from "./Ao3WorkDom.js";
-import indexDB from "./indexDB.js";
-import HTMLUpdate from "./HTMLUpdate.js"
-import dateUtils from "./dateUtils.js"
+import HTMLParserUtil from "./utils/HTMLParserUtil";
+import Ao3WorkDom from "./Ao3WorkDom";
+import indexDB from "./indexDB";
+import HTMLUpdate from "./HTMLUpdate"
+//import dateUtils from "./utils/dateUtils"
 async function scrapeWebsite (link) {
     //fetch information
     let HTMLString = await HTMLParserUtil.fetchHTML(link)

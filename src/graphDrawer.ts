@@ -1,13 +1,15 @@
 // This creates all the graphs
-import dateUtils from "./dateUtils.js"
+import dateUtils from "./utils/dateUtils";
 import Chart from 'chart.js/auto';
 import { _adapters } from 'chart.js';
 import 'chartjs-adapter-luxon';
-import testingData from "./data/testingData.js";
-import numberUtils from "./numberUtils.js";
-import indexDb from "./indexDB.js"
-import testingConfig from "./testingConfig.js"
+import testingData from "./data/testingData";
+import numberUtils from "./utils/numberUtils";
+import indexDb from "./indexDB";
+import testingConfig from "./testingConfig";
 import annotationPlugin from 'chartjs-plugin-annotation';
+
+import type {ChartConfigParam, Metadata, Snapshot} from "./data/types";
 Chart.register(annotationPlugin);
 
 const millisecondPerDay = 1000*60*60*24;
@@ -29,10 +31,10 @@ let hitsChart = null;
 /** @type {GraphMetric[]} */
 //let graphMetrics = [];
 
-const ctx_kudos = document.getElementById('kudo_per_day_graph');
-const ctx_hits = document.getElementById('hit_per_day_graph');
+const ctx_kudos = document.getElementById('kudo_per_day_graph') as HTMLCanvasElement;
+const ctx_hits = document.getElementById('hit_per_day_graph') as HTMLCanvasElement;
 
-function createChartConfig({ label, data, color, tooltipLabel, snapshots, newChapterColor, getChartCallback }) {
+function createChartConfig({ label, data, color, tooltipLabel, snapshots, newChapterColor, getChartCallback }: ChartConfigParam) {
   let annotations = generateAnnotations(snapshots, getChartCallback, newChapterColor)
   return {
     type: 'line',
@@ -153,7 +155,7 @@ function generateAnnotations(snapshots, getChart, newChapterColor) {
   return annotations;
 }
 
-/** Takes prepared metric and creates the chart.js property for use
+/** Takes prepared metric and creates the chart property for use
  * 
  * @param {GraphMetric[]} graphMetrics - Metrics
  * @param {millisecondDiff} yAxisPropertyKey - Key to search y property
@@ -215,7 +217,7 @@ async function updateKudoGraph(snapshots) {
     snapshots: snapshots,
     newChapterColor: "#fcdada",
     getChartCallback: () => kudoChart
-  }));
+  }) as any);
 }
 
 async function updateHitGraph(snapshots) {
@@ -232,7 +234,7 @@ async function updateHitGraph(snapshots) {
     snapshots: snapshots,
     newChapterColor: "#d6e1ff",
     getChartCallback: () => hitsChart
-  }));
+  }) as any);
 }
 /** Takes a list of graphMetric and prepare it for display. Has null for missing data and calculated kudos/hits
  * 

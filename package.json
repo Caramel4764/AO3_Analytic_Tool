@@ -8,7 +8,8 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node backend/server.js",
     "dev": "nodemon backend/server.js",
-    "web": "vite"
+    "web": "vite",
+    "build": "vite build"
   },
   "repository": {
     "type": "git",
