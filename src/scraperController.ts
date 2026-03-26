@@ -7,21 +7,28 @@ async function scrapeWebsite (link): Promise<boolean> {
     //fetch information
     let HTMLString = await HTMLParserUtil.fetchHTML(link)
     let HTMLDom = HTMLParserUtil.stringHTMLToDom(HTMLString);
+    console.log("HTMLDom: ", HTMLDom)
     let newAo3WorkDom = new Ao3WorkDom(HTMLDom, link);
     //store info
     let allSnapshots = await indexDB.getAllSnapshots();
     // 1 day cd
     let prevSnap = allSnapshots[allSnapshots.length-1];
     let currSnap = newAo3WorkDom.getSnapshot()
-    let doesWorkExistAlr = indexDB.doesWorkExist(newAo3WorkDom.getWorkId());
+    let doesWorkExistAlr = await indexDB.doesWorkExist(newAo3WorkDom.getWorkId());
     //indexDB.cleanSameDaySnapshot();
-    if (!indexDB.doesSnapshotDateExist(currSnap)) {
+    let isSnapShotExist = await indexDB.doesSnapshotDateExist(currSnap);
+    console.log("CHECK: ", !isSnapShotExist);
+    if (!isSnapShotExist) {
         await indexDB.addSnapshot(currSnap);
+        //if work doesn't exist, add
         if (!doesWorkExistAlr) {
-            await indexDB.addWork(newAo3WorkDom.getMetadata());
+            //issue here
+            indexDB.addWork(newAo3WorkDom.getMetadata());
+            console.log("Work successfully added")
         } else {
             console.log("Work already exists");
         }
+        console.log("Added Snapshot successfully");
         console.log("FoundSnapShot (Am i metadata): ", await indexDB.getSnapshot(newAo3WorkDom.getSnapshotId()));
         console.log("AllSnapshots: ", allSnapshots);
         return true;

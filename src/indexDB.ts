@@ -57,7 +57,8 @@ async function isDBEmpty():Promise<boolean> {
 }
 async function getSnapshot(snapshotId: number): Promise<Snapshot> {
     let snapshotStore = await getStore("snapshots");
-    let request = snapshotStore.get(snapshotId);
+    let request = await snapshotStore.get(snapshotId);
+
     return promiseRequest(request, "FoundSnapShot", "Could not find snapshot");
 }
 async function getAllSnapshotsFromWork(workId: number): Promise<Snapshot[]> {
@@ -113,6 +114,7 @@ async function doesSnapshotDateExist(snapshot: Snapshot): Promise<boolean> {
     let allUniqueDate = await getAllUniqueSnapshotDate(snapshot.workId);
     let readableDate = dateUtils.timeStampToReadable(snapshot.timeStamp);
     if (allUniqueDate.has(readableDate)){
+        console.log("ALREADY EXISTS")
         return true;
     } else {
         console.log("SET: ", allUniqueDate);
