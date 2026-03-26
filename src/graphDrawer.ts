@@ -178,7 +178,9 @@ async function getMetrics(snapshots:Snapshot[], isTesting:boolean = false): Prom
     let metric = {
       timeStamps: snapshot.timeStamp,
       kudos: snapshot.kudos,
-      hits: snapshot.hits
+      hits: snapshot.hits,
+      comments: snapshot.comments,
+      bookmarks: snapshot.bookmarks
     }
     graphMetrics.push(metric);
   }
@@ -234,17 +236,23 @@ function prepGraphData(graphMetrics:GraphMetric[]): GraphMetric[] {
   for (let i = 0; i < graphMetrics.length; i++) {
     graphMetrics[i].dates_converted = dateUtils.timeStampToReadable(graphMetrics[i].timeStamps);
   }
-  numberUtils.metricPerDay(graphMetrics, "kudos", "kudosPerDay");
-  numberUtils.metricPerDay(graphMetrics, "hits", "hitsPerDay");
-  //
+  calculateAdditionalGraphData(graphMetrics);
   graphMetrics = missingMetricImputation(graphMetrics);
   return graphMetrics;
 }
-
+//includes kudsoPerDay, commentsPerDay, etc
+function calculateAdditionalGraphData(graphMetrics: GraphMetric[]):void {
+numberUtils.metricPerDay(graphMetrics, "kudos", "kudosPerDay");
+  numberUtils.metricPerDay(graphMetrics, "hits", "hitsPerDay");
+  numberUtils.metricPerDay(graphMetrics, "comments", "commentsPerDay");
+  numberUtils.metricPerDay(graphMetrics, "bookmarks", "bookmarksPerDay");
+}
 let graphDrawer = {
   updateKudoGraph,
   updateHitGraph,
-  prepGraphData
+  prepGraphData,
+  getMetrics,
+  calculateAdditionalGraphData
 }
 
 export default graphDrawer;

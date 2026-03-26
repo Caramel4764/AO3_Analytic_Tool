@@ -1,5 +1,6 @@
 //import HTMLParserUtil from "./utils/HTMLParserUtil";
 //import Ao3WorkDom from "./Ao3WorkDom";
+import indexDB from "./indexDB";
 import scraperController from "./scraperController";
 
 const linkInput = document.getElementById("link_input");
@@ -26,6 +27,8 @@ trackBtn.addEventListener('click', async function() {
 parseBtn.addEventListener('click', function() {
     scraperController.displaySnapshot("456");
 })
-//
-scraperController.displaySnapshot("123");
 // look for indexDB and display if something is there
+let isThereData = await indexDB.isDBEmpty();
+if (!isThereData) {
+    scraperController.displaySnapshot("123");
+}

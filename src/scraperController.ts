@@ -34,6 +34,9 @@ async function scrapeWebsite (link): Promise<boolean> {
 
 async function displaySnapshot(workId, index = -1): Promise<boolean> {
     let allSnapshots = await indexDB.getAllSnapshotsFromWork(workId);
+    if (allSnapshots.length == 0) {
+        throw new Error(`No snapshot found for given id (${workId})`);
+    }
     console.log("TEST:", allSnapshots)
     let snapshotIndex;
     // if -1, find latest

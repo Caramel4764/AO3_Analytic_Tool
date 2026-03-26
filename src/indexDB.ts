@@ -48,7 +48,13 @@ async function addSnapshot(snapshot:Snapshot): Promise<Snapshot> {
     let request = snapshotStore.put(snapshot);
     return promiseRequest(request, "Successful added snapshot", "Could not add snapshot");
 }
-
+async function isDBEmpty():Promise<boolean> {
+    let allSnap = await getAllSnapshots();
+    if (allSnap.length==0) {
+        return true;
+    }
+    return false
+}
 async function getSnapshot(snapshotId: number): Promise<Snapshot> {
     let snapshotStore = await getStore("snapshots");
     let request = snapshotStore.get(snapshotId);
@@ -143,14 +149,14 @@ async function addWork(metadata: Metadata): Promise<Metadata|null> {
         return null;
     }
 }
-async function findWork(workId: number): Promise<Metadata|false> {
+async function findWork(workId: number): Promise<Metadata> {
     if (testingData.testingConfig.isTesting) {
         for (let i = 0; i<testingData.metadata.length;i++) {
             if (testingData.metadata[i].workId == workId) {
                 return testingData.metadata[i];
             }
         }
-        return false;
+        return null;
     } else {
         let metadataStore = await getStore("metadata");
         let request = metadataStore.get(workId);
@@ -194,7 +200,8 @@ let indexDB = {
     doesWorkExist,
     cleanSameDaySnapshot,
     doesSnapshotDateExist,
-    getAllSnapshotsFromWork
+    getAllSnapshotsFromWork,
+    isDBEmpty
 }
 
 export default indexDB;

@@ -67,7 +67,11 @@ export interface GraphMetric {
     kudos: number,
     kudosPerDay: number,
     hits: number,
-    hitsPerDay: number
+    hitsPerDay: number,
+    comments: number,
+    commentsPerDay: number,
+    bookmarks:number,
+    bookmarksPerDay: number
 }
 export interface GraphData {
     x: string,
