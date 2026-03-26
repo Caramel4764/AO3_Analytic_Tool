@@ -1,7 +1,8 @@
 import testingData from "./data/testingData";
-import dateUtils from "./dateUtils";
-import testingConfig from "./testingConfig.js";
-function promiseRequest(request, customSuccessMessage="", customErrorMessage="") {
+import dateUtils from "./utils/dateUtils";
+import testingConfig from "./testingConfig";
+import type{Metadata, Snapshot} from "./data/types";
+function promiseRequest<T>(request, customSuccessMessage="", customErrorMessage=""): Promise <T> {
     return new Promise((resolve, reject)=> {
         request.onsuccess = () => {
             if (customSuccessMessage != "") {
@@ -13,11 +14,11 @@ function promiseRequest(request, customSuccessMessage="", customErrorMessage="")
     })
 }
 
-function openDB() {
+function openDB(): Promise<IDBDatabase> {
     return new Promise((resolve, reject) => {
         const DBRequest = indexedDB.open("ao3Data", 2);
         DBRequest.onupgradeneeded = function(event) {
-            const db = event.target.result;
+            const db = (event.target as IDBOpenDBRequest).result;;
             //creates a table named snapshots
             db.createObjectStore("snapshots", {
                 keyPath: "snapshotId"
@@ -27,34 +28,34 @@ function openDB() {
             })
         } 
         DBRequest.onsuccess = function (event) {
-            const db = event.target.result;
+            const db = (event.target as IDBOpenDBRequest).result;;
             resolve(db);
         }
         DBRequest.onerror = function (event) {
-            reject(event.target.error);
+            reject((event.target as IDBOpenDBRequest).error);
         }
     });
 }
 
-async function getStore(storeName) {
+async function getStore(storeName:string) {
     const db = await openDB();
     let transaction = db.transaction(storeName, "readwrite");
     let store = transaction.objectStore(storeName);
     return store;
 }
 
-async function addSnapshot(snapshot) {
+async function addSnapshot(snapshot:Snapshot) {
     let snapshotStore = await getStore("snapshots");
     let request = snapshotStore.put(snapshot);
     return promiseRequest(request, "Successful added snapshot", "Could not add snapshot");
 }
 
-async function getSnapshot(snapshotId) {
+async function getSnapshot(snapshotId: number): Promise<Snapshot> {
     let snapshotStore = await getStore("snapshots");
     let request = snapshotStore.get(snapshotId);
     return promiseRequest(request, "FoundSnapShot", "Could not find snapshot");
 }
-async function getAllSnapshotsFromWork(workId) {
+async function getAllSnapshotsFromWork(workId: number) {
     let snapshots = await getAllSnapshots();
     let allSnapshotWithId = [];
     for (let i = 0; i < snapshots.length; i++) {

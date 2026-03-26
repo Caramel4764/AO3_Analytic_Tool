@@ -4,7 +4,7 @@
  * 
  * @returns - Number or the num paramter unchanged
  */
-function removeCommaFromNum(num) {
+function removeCommaFromNum(num:string) {
     if (!num) {
         return null;
     }

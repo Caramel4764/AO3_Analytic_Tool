@@ -1,42 +1,17 @@
-import HTMLParserUtil from "./HTMLParserUtil.js";
-import numberUtils from "./numberUtils.js";
-
-/**
- * @typedef {Object} Snapshot
- * @property {number} bookmarks - Number of bookmarks
- * @property {number} chapters - Number of chapters
- * @property {number} comments - Number of comments received
- * @property {number} hits - Number of hits
- * @property {number} kudos - Number of kudos
- * @property {string} published - Original publication date of the work (YYYY-MM-DD)
- * @property {number} snapshotId - Unique id of the snapshot (workId-timeStamp)
- * @property {number} timeStamp - Unix timestamp in milliseconds (Date.now())
- * @property {string} timeStampReadable - Human-readable version of timeStamp
- * @property {string} updated - Last updated date of the work (YYYY-MM-DD)
- * @property {number} words - Number of words
- * @property {number} workId - Id of the work associated to this snapshot
- */
-
-/**
- * @typedef {Object} Metadata
- * @property {number} workId - Id of the work
- * @property {number} timeStamp - Unix timestamp in milliseconds (Date.now())
- * @property {string} timeStampReadable - Human-readable version of timeStamp
- * @property {string} title - Title of the work
- * @property {number} author - Number of words
- * @property {number} url - Ao3 Url
- * @property {number} published - Publish date (YYYY-MM-DD)
- * 
- */
+//import HTMLParserUtil from "./utils/HTMLParserUtil";
+import numberUtils from "./utils/numberUtils";
+import type {Snapshot, Metadata} from "./data/types"
 
 class Ao3WorkDom {
-    constructor(dom, url) {
+    dom: Document;
+    snapshot: Snapshot;
+    metadata: Metadata;
+    constructor(dom: Document, url: string) {
         this.dom = dom;
-        /** @type {Snapshot} */
         this.snapshot = {
-            timeStamp: "",
+            timeStamp: 0,
             timeStampReadable: "",
-            workId: "",
+            workId: null,
             snapshotId: "",
             hits: 0,
             kudos: 0,
@@ -44,10 +19,9 @@ class Ao3WorkDom {
             comments: 0,
             chapters: 0
         }
-        /** @type {Metadata} */
         this.metadata = {
-            workId: "",
-            timeStamp: "",
+            workId: null,
+            timeStamp: 0,
             timeStampReadable: "",
             title: "", 
             author: "",
@@ -103,14 +77,14 @@ class Ao3WorkDom {
         return 0;
     }
 
-    updateMetaData() {
+    //updateMetaData() {
         //workMetadata.id = 
         //workMetadata.title = 
         //workMetadata.author = 
         //workMetadata.url = 
-        workMetadata.published = queryData.stats.published;
-    }
-    updateSnapshot() {
+        //workMetadata.published = queryData.stats.published;
+    //}
+    /*updateSnapshot() {
         let currDate = Date.now();
         workSnapshot.workId = workMetadata.workId;
         workSnapshot.snapshotId = workMetadata.workId+currDate
@@ -121,7 +95,7 @@ class Ao3WorkDom {
         workSnapshot.hits = numberUtils.removeCommaFromNum(queryData.stats.hits);
         workSnapshot.commentCount = numberUtils.removeCommaFromNum(queryData.stats.comments);
         workSnapshot.bookmarks = numberUtils.removeCommaFromNum(queryData.stats.bookmarks);
-    }
+    }*/
     parseMetadata() {
         const matchingUrlPart = (this.metadata.url).match(/works\/(?<workId>\d+)/);
         this.metadata.workId = matchingUrlPart ? Number(matchingUrlPart.groups.workId): null;

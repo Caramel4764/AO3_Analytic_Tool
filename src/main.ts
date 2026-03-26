@@ -1,6 +1,6 @@
-import HTMLParserUtil from "./HTMLParserUtil.js";
-import Ao3WorkDom from "./Ao3WorkDom.js";
-import scraperController from "./scraperController.js";
+//import HTMLParserUtil from "./utils/HTMLParserUtil";
+//import Ao3WorkDom from "./Ao3WorkDom";
+import scraperController from "./scraperController";
 
 const linkInput = document.getElementById("link_input");
 const trackBtn = document.getElementById("track_btn");

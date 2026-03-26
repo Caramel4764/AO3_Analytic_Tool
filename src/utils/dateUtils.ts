@@ -1,4 +1,4 @@
-import indexDB from "./indexDB";
+import indexDB from "../indexDB";
 
 const millisecondPerDay = 1000*60*60*24;
 /** Turns month int into month string. 1 = Jan. 12 = Dec

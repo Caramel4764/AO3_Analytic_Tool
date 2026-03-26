@@ -1,4 +1,4 @@
-import workMetadata from "./workMetadata.js"
+import workMetadata from "./workMetadata"
 
 const workSnapshot = {
     workId: workMetadata.workId,

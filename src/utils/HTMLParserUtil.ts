@@ -1,5 +1,5 @@
-import workMetadata from "./data/workMetadata.js";
-import workSnapshot from "./data/workSnapshot.js";
+//import workMetadata from "../data/workMetadata";
+//import workSnapshot from "../data/workSnapshot";
 
 /** Fetches HTML as string from url
  * 

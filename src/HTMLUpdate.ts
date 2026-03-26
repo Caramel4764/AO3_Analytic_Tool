@@ -1,7 +1,7 @@
-import numberUtils from "./numberUtils.js";
-import graphDrawer from "./graphDrawer.js";
-import dateUtils from "./dateUtils.js"
-import testingData from "./data/testingData.js";
+import numberUtils from "./utils/numberUtils";
+import graphDrawer from "./graphDrawer";
+import dateUtils from "./utils/dateUtils"
+import testingData from "./data/testingData";
 
 
 let kudoCount = document.getElementById("kudo_count");
