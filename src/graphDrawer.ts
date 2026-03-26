@@ -113,8 +113,8 @@ function generateAnnotations(snapshots:Snapshot[], getChart: ()=>Chart, newChapt
         type: 'line',
         z: -1,
         drawTime: 'beforeDatasetsDraw',
-        xMin: dateUtils.timeStampToReadable(snapshot.timeStamp, true),
-        xMax: dateUtils.timeStampToReadable(snapshot.timeStamp, true),
+        xMin: dateUtils.timeStampToReadable(snapshot.timeStamp),
+        xMax: dateUtils.timeStampToReadable(snapshot.timeStamp),
         borderColor: newChapterColor,
         borderWidth: 4,
         display: true,
@@ -201,7 +201,7 @@ async function updateKudoGraph(snapshots:Snapshot[]): Promise<void> {
   kudoChart = new Chart(ctx_kudos, createChartConfig({
     label: 'Daily Kudos',
     data: graphData,
-    color: 'red',
+    color: '#FF0000',
     tooltipLabel: 'Kudos',
     snapshots: snapshots,
     newChapterColor: "#fcdada",
@@ -232,7 +232,7 @@ async function updateHitGraph(snapshots:Snapshot[]): Promise<void> {
 */
 function prepGraphData(graphMetrics:GraphMetric[]): GraphMetric[] {
   for (let i = 0; i < graphMetrics.length; i++) {
-    graphMetrics[i].dates_converted = dateUtils.timeStampToReadable(graphMetrics[i].timeStamps, true);
+    graphMetrics[i].dates_converted = dateUtils.timeStampToReadable(graphMetrics[i].timeStamps);
   }
   numberUtils.metricPerDay(graphMetrics, "kudos", "kudosPerDay");
   numberUtils.metricPerDay(graphMetrics, "hits", "hitsPerDay");

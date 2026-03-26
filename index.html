@@ -20,10 +20,22 @@
     <div id="stat_content">
         <h2 id="work_title">Title</h2>
         <div id="basic_stat">
-            <div id="stat_flex">
-                <div class="basic_stat_div">Kudos: <span id="kudo_count">0</span></div>
-                <div class="basic_stat_div">Hits: <span id="hit_count">0</span></div>
-                <div class="basic_stat_div">Engagement: <span id="engagement_count">0</span></div>
+            <div class="stat_flex">
+                <div class="inner_stat_flex" id="basic_stat_og_div">
+                    <div id='kudo_div' class="basic_stat_div">Kudos<span class="info_icon" data_tooltip="Amount of likes. A user can only give 1 kudo per work">ⓘ</span>: <span id="kudo_count">0</span></div>
+                    <div id='hit_div' class="basic_stat_div">Hits: <span id="hit_count">0</span></div>
+                    <div class="basic_stat_div">Comments: <span id="comment_count">0</span></div>
+                    <div class="basic_stat_div">Bookmarks: <span id="bookmark_count">0</span></div>
+                </div>
+                <div class="inner_stat_flex" id="basic_stat_high_div">
+                    <div class="basic_stat_div">Daily Kudo High: <span id="kudo_count_high">0</span></div>
+                    <div class="basic_stat_div">Daily Hit High: <span id="kudo_count_high">0</span></div>
+                    <div class="basic_stat_div">Daily Comment High: <span id="comment_count_high">0</span></div>
+                    <div class="basic_stat_div">Daily Bookmark High: <span id="bookmark_count_high">0</span></div>
+                </div>
+                <div class="inner_stat_flex" id="other_high_div">
+                    <div class="basic_stat_div">Engagement: <span id="engagement_count">0</span></div>
+                </div>
             </div>
         </div>
         <div id="graph_gallery">
