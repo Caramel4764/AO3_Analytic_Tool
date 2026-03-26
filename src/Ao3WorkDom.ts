@@ -38,11 +38,11 @@ class Ao3WorkDom {
     getMetadata():Metadata {
         return this.metadata;
     }
-    getSnapshotId():string {
-        return this.snapshot.snapshotId;
+    getSnapshotId():number {
+        return Number(this.snapshot.snapshotId);
     }
     getWorkId():number {
-        return this.metadata.workId;
+        return Number(this.metadata.workId);
     }
     getKudos():number {
         return this.snapshot.kudos;

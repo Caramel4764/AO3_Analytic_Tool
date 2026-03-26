@@ -2,12 +2,17 @@ import numberUtils from "./utils/numberUtils";
 import graphDrawer from "./graphDrawer";
 import dateUtils from "./utils/dateUtils"
 import testingData from "./data/testingData";
-
-
+import type{ Metadata, Snapshot } from "./data/types";
+let titleHeader = document.getElementById("work_title");
 let kudoCount = document.getElementById("kudo_count");
 let hitCount = document.getElementById("hit_count");
 let engagementCount = document.getElementById("engagement_count");
-let titleHeader = document.getElementById("work_title");
+let commentCount = document.getElementById("comment_count");
+let bookmarkCount = document.getElementById("bookmark_count");
+let kudoHighCount = document.getElementById("kudo_count_high");
+let hitHighCount = document.getElementById("hit_count_high");
+let commentHighCount = document.getElementById("comment_count_high");
+let bookmarkHighCount = document.getElementById("bookmark_count_high");
 
 function updateTitle(title):void {
   titleHeader.textContent = title;
@@ -17,6 +22,24 @@ function updateHit(hit):void {
 }
 function updateKudo(kudo):void {
   kudoCount.textContent = kudo;
+}
+function updateComments(comment):void {
+  commentCount.textContent = comment;
+}
+function updateBookmark(bookmark):void {
+  bookmarkCount.textContent = bookmark;
+}
+function updateHitHigh(hit):void {
+  hitHighCount.textContent = hit;
+}
+function updateKudoHigh(kudo):void {
+  kudoHighCount.textContent = kudo;
+}
+function updateCommentsHigh(comment):void {
+  commentHighCount.textContent = comment;
+}
+function updateBookmarkHigh(bookmark):void {
+  bookmarkHighCount.textContent = bookmark;
 }
 /** Fill in missing data with null based on day
  * 
@@ -35,13 +58,22 @@ function updateEngagement(kudos, hits) {
  * @param {Metadata} metadata - Metadata to graph
  * 
 */
-function updateStats(index, snapshot, metadata) {
-  updateHit(snapshot[index].hits);
-  updateKudo(snapshot[index].kudos);
-  updateEngagement(snapshot[index].kudos, snapshot[index].hits);
+async function updateStats(index:number, snapshots:Snapshot[], metadata:Metadata):Promise<void> {
+  let tarSnap = snapshots[index];
+  updateHit(tarSnap.hits);
+  updateKudo(tarSnap.kudos);
+  updateEngagement(tarSnap.kudos, tarSnap.hits);
   updateTitle(metadata.title);
-  graphDrawer.updateKudoGraph(snapshot);
-  graphDrawer.updateHitGraph(snapshot);
+  updateComments(tarSnap.comments);
+  updateBookmark(tarSnap.bookmarks);
+  let metrics = await graphDrawer.getMetrics(snapshots);
+  graphDrawer.calculateAdditionalGraphData(metrics);
+  updateHitHigh(numberUtils.findMaxOfGraphMetricProperty(metrics, "hitsPerDay"));
+  updateKudoHigh(numberUtils.findMaxOfGraphMetricProperty(metrics, "kudosPerDay"));
+  updateCommentsHigh(numberUtils.findMaxOfGraphMetricProperty(metrics, "commentsPerDay"));
+  updateBookmarkHigh(numberUtils.findMaxOfGraphMetricProperty(metrics, "bookmarksPerDay"));
+  graphDrawer.updateKudoGraph(snapshots);
+  graphDrawer.updateHitGraph(snapshots);
 }
 
 let HTMLUpdate = {
