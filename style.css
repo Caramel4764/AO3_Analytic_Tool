@@ -1,7 +1,14 @@
 * {
     font-family: Arial, Helvetica, sans-serif;
 }
-
+:root {
+    --kudo: #FF0000;
+    --kudo-bg:#fcdada;
+    --hit-bg: #d6e1ff;
+    --hit: #1751ff;
+    --comment: green;
+    --bookmark: grey;
+}
 .flex_col_center {
     display:flex;
     flex-direction: column;
@@ -29,12 +36,45 @@
 #hit_per_day_graph_div {
     background-color: rgb(233, 249, 255);
 }
-#stat_flex {
+.stat_flex {
+    display: grid;
+    /*gap: 10px;*/
+}
+.basic_stat_div {
+    border-radius: 10px;
+    padding: 8px;
+}
+.inner_stat_flex {
     display: flex;
     gap: 10px;
+    flex-wrap: wrap;
+}
+#hit_div {
+    background-color: var(--hit-bg);
+    color: var(--hit);
+}
+#kudo_div {
+    background-color: var(--kudo-bg);
+    color: var(--kudo);
+}
+#basic_stat_og_div {
+    /*background-color: rgb(243, 240, 212);*/
+}
+#basic_stat{
+    border: 1px solid #ccc;
+    box-shadow: 0 0 6px rgba(0, 0, 0, 0.25);
+    padding: 10px 0
+}
+#basic_stat_high_div {
+    /*background-color: rgb(218, 255, 243);*/
 }
 #stat_content {
     /*background-color: lavender;*/
+}
+.inner_stat_flex {
+    padding:8px;
+    border-radius: 15px;
+    /*outline: 2px black solid;*/
 }
 #main_div {
     gap: 10px;
@@ -71,3 +111,33 @@
     margin: 10px;
 }
 
+.info_icon {
+    cursor: pointer;
+    color: #232323;
+    font-size: 14px;
+    position: relative;
+}
+
+/*.info_icon::after {
+    content: attr(data_tooltip);
+    position: absolute;
+    background: #333;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    white-space: nowrap;
+    font-size: 1.2em;
+    bottom: 100%;       
+    left: auto;
+    right: 0;
+    white-space: normal;   
+    max-width: 200px;   
+    width: max-content;     
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s;
+}
+
+.info_icon:hover::after {
+    opacity: 1;
+}*/
