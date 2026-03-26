@@ -4,7 +4,7 @@
  * 
  * @returns - Number or the num paramter unchanged
  */
-function removeCommaFromNum(num:string) {
+function removeCommaFromNum(num:string):number|string {
     if (!num) {
         return null;
     }
@@ -21,7 +21,7 @@ function removeCommaFromNum(num:string) {
  * 
  * @returns {String} - Engagement percentage
  */
-function calculateEngagement(kudo, hits) {
+function calculateEngagement(kudo:number, hits:number):string {
     return ((kudo/hits)*100).toFixed(2)+"%";
 }
 //consider missing data later or day changes

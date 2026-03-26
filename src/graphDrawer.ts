@@ -6,29 +6,18 @@ import 'chartjs-adapter-luxon';
 import testingData from "./data/testingData";
 import numberUtils from "./utils/numberUtils";
 import indexDb from "./indexDB";
-import testingConfig from "./testingConfig";
 import annotationPlugin from 'chartjs-plugin-annotation';
 
-import type {ChartConfigParam, Metadata, Snapshot} from "./data/types";
+import type {ChartConfigParam, GraphMetric, GraphData, Metadata, Snapshot} from "./data/types";
 Chart.register(annotationPlugin);
 
 const millisecondPerDay = 1000*60*60*24;
 const isTesting = true;
-/**
- * @typedef {Object} GraphMetric 
- * @property {string} timeStamps - Unix timestamp in milliseconds (Date.now())
- * @property {string} dates_converted - String date intended for human reading (IE: Jan 1)
- * @property {number} kudos - Number of kudos
- * @property {number} kudosPerDay - Daily kudos
- * @property {number} hits - Number of hits
- * @property {number} hitsPerDay - Daily hits
- * 
- */
+
 
 //tracks if a graph has already been created
 let kudoChart = null;
 let hitsChart = null;
-/** @type {GraphMetric[]} */
 //let graphMetrics = [];
 
 const ctx_kudos = document.getElementById('kudo_per_day_graph') as HTMLCanvasElement;
@@ -88,7 +77,7 @@ function createChartConfig({ label, data, color, tooltipLabel, snapshots, newCha
  * @return {millisecondDiff} - Milliseconds of time in betwen before a entry is considered missing. Defaults to a day
 */
 //[FIX HERE. NOT MILLISECONDS BUT UNIQUE DATE]
-function missingMetricImputation(metrics, millisecondDiff = 2*millisecondPerDay) {
+function missingMetricImputation(metrics: GraphMetric[], millisecondDiff:number = 2*millisecondPerDay) {
   let imputatedMetric = [];
   for (let i = 0; i<metrics.length-1; i++) {
     imputatedMetric.push(metrics[i]);
@@ -107,7 +96,7 @@ function missingMetricImputation(metrics, millisecondDiff = 2*millisecondPerDay)
   return imputatedMetric;
 }
 
-function generateAnnotations(snapshots, getChart, newChapterColor) {
+function generateAnnotations(snapshots:Snapshot[], getChart: ()=>Chart, newChapterColor:string) {
   let newChapterSnapshots = [];
   for (let i = 1; i < snapshots.length; i++) {
     let currSnap = snapshots[i];
@@ -160,7 +149,7 @@ function generateAnnotations(snapshots, getChart, newChapterColor) {
  * @param {GraphMetric[]} graphMetrics - Metrics
  * @param {millisecondDiff} yAxisPropertyKey - Key to search y property
 */
-function generateGraphDataset(graphMetrics, yAxisPropertyKey) {
+function generateGraphDataset(graphMetrics: GraphMetric[], yAxisPropertyKey:string):GraphData[] {
   const fixedData = [];
   for (let i = 0; i < graphMetrics.length; i++) {
     const current = graphMetrics[i];
@@ -182,7 +171,7 @@ const skipped = (ctx, value) => ctx.p0.skip || ctx.p1.skip ? value : undefined;
  * 
  * @param {Boolean} isTesting - Include testinging value or real? False by default
 */
-async function getMetrics(snapshots, isTesting = false) {
+async function getMetrics(snapshots:Snapshot[], isTesting:boolean = false): Promise<GraphMetric[]> {
   let graphMetrics = [];
   for (let i = 0; i < snapshots.length; i++) {
     let snapshot = snapshots[i];
@@ -198,12 +187,12 @@ async function getMetrics(snapshots, isTesting = false) {
 /** Gets the graph metric and prepare it for use
  * 
 */
-async function getGraphMetric(snapshots) {
+async function getGraphMetric(snapshots:Snapshot[]): Promise<GraphMetric[]> {
   let graphMetrics = await getMetrics(snapshots);
   graphMetrics = prepGraphData(graphMetrics);
   return graphMetrics;
 }
-async function updateKudoGraph(snapshots) {
+async function updateKudoGraph(snapshots:Snapshot[]): Promise<void> {
   if (kudoChart) {
     kudoChart.destroy();
   }
@@ -220,7 +209,7 @@ async function updateKudoGraph(snapshots) {
   }) as any);
 }
 
-async function updateHitGraph(snapshots) {
+async function updateHitGraph(snapshots:Snapshot[]): Promise<void> {
   if (hitsChart) {
     hitsChart.destroy();
   }
@@ -241,7 +230,7 @@ async function updateHitGraph(snapshots) {
  * @param {GraphMetric[]} graphMetrics - Snapshot to graph
  * @return {GraphMetric[]} - Graph metric will null filled in for missing day
 */
-function prepGraphData(graphMetrics) {
+function prepGraphData(graphMetrics:GraphMetric[]): GraphMetric[] {
   for (let i = 0; i < graphMetrics.length; i++) {
     graphMetrics[i].dates_converted = dateUtils.timeStampToReadable(graphMetrics[i].timeStamps, true);
   }

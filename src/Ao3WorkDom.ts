@@ -32,31 +32,31 @@ class Ao3WorkDom {
         this.parseMetadata();
         this.parseStat();
     }
-    getSnapshot() {
+    getSnapshot():Snapshot {
         return this.snapshot;
     }
-    getMetadata() {
+    getMetadata():Metadata {
         return this.metadata;
     }
-    getSnapshotId() {
+    getSnapshotId():string {
         return this.snapshot.snapshotId;
     }
-    getWorkId() {
+    getWorkId():number {
         return this.metadata.workId;
     }
-    getKudos() {
+    getKudos():number {
         return this.snapshot.kudos;
     }
-    getHits() {
+    getHits():number {
         return this.snapshot.hits;
     }
-    getBookmarks() {
+    getBookmarks():number {
         return this.snapshot.bookmarks;
     }
-    getCommentCount() {
+    getCommentCount():number {
         return this.snapshot.comments;
     }
-    getChapterCount() {
+    getChapterCount():number {
         return this.snapshot.chapters;
     }
     /** Extracts the chapter count from string. Currently this is the first number
@@ -65,7 +65,7 @@ class Ao3WorkDom {
      * 
      * @returns {Int} - the number of chapters
      */
-    parseAO3Chapter(chapterString) {
+    parseAO3Chapter(chapterString:string): number {
         let chapterInt = "";
         for (let i = 0; i < chapterString.length; i++) {
             if (chapterString[i]=='/') {
@@ -96,7 +96,10 @@ class Ao3WorkDom {
         workSnapshot.commentCount = numberUtils.removeCommaFromNum(queryData.stats.comments);
         workSnapshot.bookmarks = numberUtils.removeCommaFromNum(queryData.stats.bookmarks);
     }*/
-    parseMetadata() {
+    /** Fills metadata from the dom
+     * 
+    */
+    parseMetadata():void {
         const matchingUrlPart = (this.metadata.url).match(/works\/(?<workId>\d+)/);
         this.metadata.workId = matchingUrlPart ? Number(matchingUrlPart.groups.workId): null;
         this.metadata.published = this.dom.querySelector("dl.stats dd.status").textContent;
@@ -106,7 +109,10 @@ class Ao3WorkDom {
         this.metadata.timeStampReadable = new Date().toISOString();
         console.log(this.metadata);
     }
-    parseStat() {
+    /** Fills stat from dom
+     * 
+     */
+    parseStat():void {
         let listOfDataLabel = this.dom.querySelectorAll("dl.stats dt");
         let listOfDataValue = this.dom.querySelectorAll("dl.stats dd");
         for (let i = 0; i < listOfDataLabel.length; i++) {

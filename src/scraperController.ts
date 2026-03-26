@@ -3,7 +3,7 @@ import Ao3WorkDom from "./Ao3WorkDom";
 import indexDB from "./indexDB";
 import HTMLUpdate from "./HTMLUpdate"
 //import dateUtils from "./utils/dateUtils"
-async function scrapeWebsite (link) {
+async function scrapeWebsite (link): Promise<boolean> {
     //fetch information
     let HTMLString = await HTMLParserUtil.fetchHTML(link)
     let HTMLDom = HTMLParserUtil.stringHTMLToDom(HTMLString);
@@ -24,13 +24,15 @@ async function scrapeWebsite (link) {
         }
         console.log("FoundSnapShot (Am i metadata): ", await indexDB.getSnapshot(newAo3WorkDom.getSnapshotId()));
         console.log("AllSnapshots: ", allSnapshots);
+        return true;
     } else {
         alert("A day hasn't passed. Calm down");
+        return false;
     }
 }
 
 
-async function displaySnapshot(workId, index = -1) {
+async function displaySnapshot(workId, index = -1): Promise<boolean> {
     let allSnapshots = await indexDB.getAllSnapshotsFromWork(workId);
     console.log("TEST:", allSnapshots)
     let snapshotIndex;
@@ -49,6 +51,7 @@ async function displaySnapshot(workId, index = -1) {
     let allMetadata = await indexDB.getAllWork();
     console.log("All metadata: ", allMetadata);
     HTMLUpdate.updateStats(snapshotIndex, allSnapshots, workMetadata);
+    return true;
 }
 let scraperController = {
     scrapeWebsite,

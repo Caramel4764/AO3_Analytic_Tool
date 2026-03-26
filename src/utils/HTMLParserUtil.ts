@@ -7,7 +7,7 @@
  * 
  * @returns {Promise<string>} - A promise that returns the HTML in string
  */
-async function fetchHTML(weblink) {
+async function fetchHTML(weblink:string):Promise<string> {
     let weblinkNoWarning = weblink+"?view_adult=true";
     //?view_adult=true prevents warning page
     const res = await fetch(`http://localhost:3000/proxy?url=${encodeURIComponent(weblinkNoWarning)}`);
@@ -26,7 +26,7 @@ async function fetchHTML(weblink) {
  * 
  * @returns {Document} - The DOM document
  */
-function stringHTMLToDom(HTMLString) {
+function stringHTMLToDom(HTMLString:string): Document {
     const parser = new DOMParser();
     return parser.parseFromString(HTMLString, "text/html");
 }
