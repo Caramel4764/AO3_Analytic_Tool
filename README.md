@@ -11,16 +11,16 @@ A local web scaper that tracks the history of a given AO3 work through link. It 
 - Display works in graph format that can switch
 - If a day or days are missed, the graph uses gray dashed line to show missing data
 - Chapters are indicated by vertical line
-
+- Calculate analytics like engagement and highest comments per day
 
 ## Todo list/functional
-- Calculate analytic
 - Add documentation
 - Allow sorting of update by metrics like date (and maybe daily kudo count, etc)
 - Turn into extension
 - Email report of tracked work with user specified frequency
 - Remove a work
 - Import a work's data
+- Space stats as much as possible
 
 ## Possible edge cases
 - Consider edge case when work name changes

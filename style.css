@@ -51,6 +51,7 @@ body{
     display: flex;
     gap: 10px;
     flex-wrap: wrap;
+    justify-content: space-between;
 }
 #hit_div {
     background-color: var(--hit-bg);

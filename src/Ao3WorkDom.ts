@@ -42,8 +42,8 @@ class Ao3WorkDom {
     getMetadata():Metadata {
         return this.metadata;
     }
-    getSnapshotId():number {
-        return Number(this.snapshot.snapshotId);
+    getSnapshotId():string {
+        return this.snapshot.snapshotId;
     }
     getWorkId():number {
         return Number(this.metadata.workId);
@@ -107,7 +107,7 @@ class Ao3WorkDom {
         const matchingUrlPart = (this.metadata.url).match(/works\/(?<workId>\d+)/);
         this.metadata.workId = matchingUrlPart ? Number(matchingUrlPart.groups.workId): null;
         this.metadata.published = this.dom.querySelector("dl.stats dd.status").textContent;
-        this.metadata.author = this.dom.querySelector("div.preface.group h3.byline.heading").textContent;
+        this.metadata.author = this.dom.querySelector("div.preface.group h3.byline.heading").textContent.trim();
         this.metadata.title = this.dom.querySelector("div.preface.group h2.title.heading").textContent.trim();
         this.metadata.timeStamp = Date.now();
         this.metadata.timeStampReadable = new Date().toISOString();
