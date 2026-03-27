@@ -1,6 +1,7 @@
 //import HTMLParserUtil from "./utils/HTMLParserUtil";
 import numberUtils from "./utils/numberUtils";
 import type {Snapshot, Metadata} from "./data/types"
+import HTMLParserUtil from "./utils/HTMLParserUtil";
 
 class Ao3WorkDom {
     dom: Document;
@@ -80,32 +81,11 @@ class Ao3WorkDom {
         }
         return 0;
     }
-
-    //updateMetaData() {
-        //workMetadata.id = 
-        //workMetadata.title = 
-        //workMetadata.author = 
-        //workMetadata.url = 
-        //workMetadata.published = queryData.stats.published;
-    //}
-    /*updateSnapshot() {
-        let currDate = Date.now();
-        workSnapshot.workId = workMetadata.workId;
-        workSnapshot.snapshotId = workMetadata.workId+currDate
-        workSnapshot.timeStamp = currDate;
-        workSnapshot.lastUpdated = queryData.stats.updated;
-        workSnapshot.chapterCount = numberUtils.removeCommaFromNum(queryData.stats.chapters);
-        workSnapshot.kudos = numberUtils.removeCommaFromNum(queryData.stats.kudos);
-        workSnapshot.hits = numberUtils.removeCommaFromNum(queryData.stats.hits);
-        workSnapshot.commentCount = numberUtils.removeCommaFromNum(queryData.stats.comments);
-        workSnapshot.bookmarks = numberUtils.removeCommaFromNum(queryData.stats.bookmarks);
-    }*/
     /** Fills metadata from the dom
      * 
     */
     parseMetadata():void {
-        const matchingUrlPart = (this.metadata.url).match(/works\/(?<workId>\d+)/);
-        this.metadata.workId = matchingUrlPart ? Number(matchingUrlPart.groups.workId): null;
+        this.metadata.workId = HTMLParserUtil.getIdFromLink(this.metadata.url);
         this.metadata.published = this.dom.querySelector("dl.stats dd.status").textContent;
         this.metadata.author = this.dom.querySelector("div.preface.group h3.byline.heading").textContent.trim();
         this.metadata.title = this.dom.querySelector("div.preface.group h2.title.heading").textContent.trim();

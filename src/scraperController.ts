@@ -2,8 +2,33 @@ import HTMLParserUtil from "./utils/HTMLParserUtil";
 import Ao3WorkDom from "./Ao3WorkDom";
 import indexDB from "./indexDB";
 import HTMLUpdate from "./HTMLUpdate"
+import dateUtils from "./utils/dateUtils";
+import type { Metadata } from "./data/types";
+import config from "./config";
+import asyncUtil from "./utils/asyncUtil";
 //import dateUtils from "./utils/dateUtils"
-async function scrapeWebsite (link): Promise<Ao3WorkDom> {
+async function scrapeWebsite (link): Promise<boolean> {
+    //plan
+    //1. get id
+    //2. look up most recent snapshot date
+    //3. is current date past most recent snapshot date?
+        //4. Scrape if over most recent date
+        //5. Does metadata exist? Include if not
+        //6. Get snapshot
+
+    let workId = HTMLParserUtil.getIdFromLink(link);
+    let latestSnapshot = await indexDB.getMostRecentSnapshotFromWork(workId);
+    if (latestSnapshot) {
+        const lastScrapeTime = latestSnapshot.timeStamp;
+        const currTime = new Date();
+        const lastScrapeTimeReadable = dateUtils.timeStampToReadable(lastScrapeTime);
+        const currTimeReadable = dateUtils.timeStampToReadable(currTime.getTime());
+        
+        if (lastScrapeTimeReadable == currTimeReadable) {
+            alert("A day hasn't passed. Wait until midnight");
+            return false;
+        }
+    }
     //fetch information
     let HTMLString = await HTMLParserUtil.fetchHTML(link)
     let HTMLDom = HTMLParserUtil.stringHTMLToDom(HTMLString);
@@ -11,36 +36,34 @@ async function scrapeWebsite (link): Promise<Ao3WorkDom> {
     let newAo3WorkDom = new Ao3WorkDom(HTMLDom, link);
     //store info
     let allSnapshots = await indexDB.getAllSnapshots();
-    // 1 day cd
-    let prevSnap = allSnapshots[allSnapshots.length-1];
     let currSnap = newAo3WorkDom.getSnapshot()
     let doesWorkExistAlr = await indexDB.doesWorkExist(newAo3WorkDom.getWorkId());
     //indexDB.cleanSameDaySnapshot();
-    let isSnapShotExist = await indexDB.doesSnapshotDateExist(currSnap);
-    console.log("CHECK: ", !isSnapShotExist);
-    if (!isSnapShotExist) {
-        await indexDB.addSnapshot(currSnap);
-        //if work doesn't exist, add
-        if (!doesWorkExistAlr) {
-            //issue here
-            indexDB.addWork(newAo3WorkDom.getMetadata());
-            console.log("Work successfully added")
-        } else {
-            console.log("Work already exists");
-        }
-        console.log("Added Snapshot successfully");
-        let gotten = await indexDB.getSnapshot(newAo3WorkDom.getSnapshotId());
-        console.log("FoundSnapShot (Am i metadata): ", gotten);
-        console.log("AllSnapshots: ", allSnapshots);
-        return newAo3WorkDom;
+    //if work doesn't exist, add
+    if (!doesWorkExistAlr) {
+        //issue here
+        indexDB.addWork(newAo3WorkDom.getMetadata());
+        console.log("Work successfully added: ", newAo3WorkDom.getMetadata)
     } else {
-        alert("A day hasn't passed. Calm down");
-        return newAo3WorkDom;
+        console.log("Work already exists: ", newAo3WorkDom.getMetadata);
+    }
+    await indexDB.addSnapshot(currSnap);
+    console.log("Added Snapshot successfully: ", newAo3WorkDom.getSnapshot());
+    console.log("AllSnapshots: ", allSnapshots);
+    return true;
+}
+async function scrapeMultiWork(listOfWork: Metadata[]): Promise<void> {
+    for (let i = 0; i < listOfWork.length; i++) {
+        //scrape multiple work at once
+        const batch = listOfWork.slice(i, i+config.scrapeBatchSize);
+        await Promise.allSettled(batch.map(work => scrapeAndUpdate(work.url)));
+        await asyncUtil.delay(config.scrapMSCD);
     }
 }
 async function scrapeAndUpdate(link) {
-    let Ao3Dom = await scrapeWebsite(link);
-    displaySnapshot(Ao3Dom.getWorkId());
+    await scrapeWebsite(link);
+    let id = HTMLParserUtil.getIdFromLink(link);
+    await displaySnapshot(id);
 }
 
 async function displaySnapshot(workId, index = -1): Promise<boolean> {
@@ -70,6 +93,7 @@ async function displaySnapshot(workId, index = -1): Promise<boolean> {
 let scraperController = {
     scrapeWebsite,
     displaySnapshot,
-    scrapeAndUpdate
+    scrapeAndUpdate,
+    scrapeMultiWork
 }
 export default scraperController
