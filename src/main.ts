@@ -28,7 +28,6 @@ parseBtn.addEventListener('click', function() {
 // look for indexDB and display if something is there
 let isThereData = await indexDB.isDBEmpty();
 let isDBEmpty = await indexDB.isDBByWorkEmpty(workID);
-console.log(!isDBEmpty);
 if (!isThereData && !isDBEmpty) {
     scraperController.displaySnapshot(workID);
 }

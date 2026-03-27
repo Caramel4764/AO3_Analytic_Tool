@@ -143,14 +143,11 @@ let metadata = [{
     "url": "https://archiveofourown.org/",
     "published": "2026-01-04"
 }]
-let testingConfig = {
-  isTesting: true
-}
 
 let testingData = {
     metadata,
     snapshots,
-    testingConfig
+    
 }
 
 export default testingData;

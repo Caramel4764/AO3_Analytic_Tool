@@ -31,8 +31,14 @@ function stringHTMLToDom(HTMLString:string): Document {
     return parser.parseFromString(HTMLString, "text/html");
 }
 
+function getIdFromLink(link:string):number {
+    const matchingUrlPart = link.match(/works\/(?<workId>\d+)/);
+    const id = matchingUrlPart ? Number(matchingUrlPart.groups.workId): null;
+    return id;
+}
 const HTMLParserUtil = {
     fetchHTML,
     stringHTMLToDom,
+    getIdFromLink
 }
 export default HTMLParserUtil;

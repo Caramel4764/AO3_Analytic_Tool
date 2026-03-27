@@ -1,6 +1,7 @@
 import testingData from "./data/testingData";
 import dateUtils from "./utils/dateUtils";
 import type{ Metadata, Snapshot } from "./data/types";
+import config from "./config"
 function promiseRequest<T>(request, customSuccessMessage: string="", customErrorMessage: string=""): Promise <T> {
     return new Promise((resolve, reject)=> {
         request.onsuccess = () => {
@@ -87,9 +88,12 @@ async function getSnapshot(snapshotId: string): Promise<Snapshot> {
 
     return promiseRequest(request, "FoundSnapShot", "Could not find snapshot");
 }
-
+async function getMostRecentSnapshotFromWork(workId:number): Promise<Snapshot> {
+    const allSnap = await getAllSnapshotsFromWork(workId);
+    return allSnap[allSnap.length-1];
+}
 async function getAllSnapshots(): Promise<Snapshot[]> {
-    if (testingData.testingConfig.isTesting) {
+    if (config.isTesting) {
         return testingData.snapshots;
     } else {
         let snapshotStore = await getStore("snapshots");
@@ -168,7 +172,7 @@ async function addWork(metadata: Metadata): Promise<Metadata|null> {
     }
 }
 async function findWork(workId: number): Promise<Metadata> {
-    if (testingData.testingConfig.isTesting) {
+    if (config.isTesting) {
         for (let i = 0; i<testingData.metadata.length;i++) {
             if (testingData.metadata[i].workId == workId) {
                 return testingData.metadata[i];
@@ -182,7 +186,7 @@ async function findWork(workId: number): Promise<Metadata> {
     }
 }
 async function getAllWork(): Promise<Metadata[]> {
-    if (testingData.testingConfig.isTesting) {
+    if (config.isTesting) {
         return testingData.metadata;
     } else {
         let metadataStore = await getStore("metadata");
@@ -227,7 +231,8 @@ let indexDB = {
     doesSnapshotDateExist,
     getAllSnapshotsFromWork,
     isDBEmpty,
-    isDBByWorkEmpty
+    isDBByWorkEmpty,
+    getMostRecentSnapshotFromWork
 }
 
 export default indexDB;
