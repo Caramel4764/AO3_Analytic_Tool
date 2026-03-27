@@ -53,13 +53,7 @@ async function isDBEmpty():Promise<boolean> {
     if (allSnap.length==0) {
         return true;
     }
-    return false
-}
-async function getSnapshot(snapshotId: number): Promise<Snapshot> {
-    let snapshotStore = await getStore("snapshots");
-    let request = await snapshotStore.get(snapshotId);
-
-    return promiseRequest(request, "FoundSnapShot", "Could not find snapshot");
+    return false;
 }
 async function getAllSnapshotsFromWork(workId: number): Promise<Snapshot[]> {
     let snapshots = await getAllSnapshots();
@@ -72,6 +66,28 @@ async function getAllSnapshotsFromWork(workId: number): Promise<Snapshot[]> {
     }
     return allSnapshotWithId;
 }
+async function removeAllSnapshotsFromWork(workId: number): Promise<void> {
+    let allSnapshotWithId = await getAllSnapshotsFromWork(workId);
+    for (let i = 0; i < allSnapshotWithId.length; i++) {
+        let currSnap = allSnapshotWithId[i];
+        indexDB.removeSnapshot(currSnap.snapshotId);
+    }
+}
+async function isDBByWorkEmpty(workID: number) {
+    let allSnap = await getAllSnapshotsFromWork(workID);
+    console.log("TESTIN:", allSnap.length)
+    if (allSnap.length == 0) {
+        return true;
+    }
+    return false;
+}
+async function getSnapshot(snapshotId: string): Promise<Snapshot> {
+    let snapshotStore = await getStore("snapshots");
+    let request = snapshotStore.get(snapshotId);
+
+    return promiseRequest(request, "FoundSnapShot", "Could not find snapshot");
+}
+
 async function getAllSnapshots(): Promise<Snapshot[]> {
     if (testingData.testingConfig.isTesting) {
         return testingData.snapshots;
@@ -176,16 +192,23 @@ async function getAllWork(): Promise<Metadata[]> {
 }
 async function doesWorkExist(workId:number):Promise<boolean> {
     let allWork = await getAllWork();
+    console.log("ALL WORK:", allWork);
+    console.log("workId: ", workId)
     for (let i = 0; i < allWork.length; i++) {
         if (allWork[i].workId == workId) {
+            console.log("true: ")
             return true;
         }
     }
+    console.log("false: ")
+
     return false;
 }
+//remove work and associated snapshots
 async function removeWork(workId:number): Promise<Metadata> {
     let metadataStore = await getStore("metadata");
     let request = metadataStore.delete(workId);
+    removeAllSnapshotsFromWork(workId);
     return promiseRequest(request, "Deleted Work", "Could not delete because work Id not found");
 }
 
@@ -203,7 +226,8 @@ let indexDB = {
     cleanSameDaySnapshot,
     doesSnapshotDateExist,
     getAllSnapshotsFromWork,
-    isDBEmpty
+    isDBEmpty,
+    isDBByWorkEmpty
 }
 
 export default indexDB;

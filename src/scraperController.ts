@@ -3,7 +3,7 @@ import Ao3WorkDom from "./Ao3WorkDom";
 import indexDB from "./indexDB";
 import HTMLUpdate from "./HTMLUpdate"
 //import dateUtils from "./utils/dateUtils"
-async function scrapeWebsite (link): Promise<boolean> {
+async function scrapeWebsite (link): Promise<Ao3WorkDom> {
     //fetch information
     let HTMLString = await HTMLParserUtil.fetchHTML(link)
     let HTMLDom = HTMLParserUtil.stringHTMLToDom(HTMLString);
@@ -29,15 +29,19 @@ async function scrapeWebsite (link): Promise<boolean> {
             console.log("Work already exists");
         }
         console.log("Added Snapshot successfully");
-        console.log("FoundSnapShot (Am i metadata): ", await indexDB.getSnapshot(newAo3WorkDom.getSnapshotId()));
+        let gotten = await indexDB.getSnapshot(newAo3WorkDom.getSnapshotId());
+        console.log("FoundSnapShot (Am i metadata): ", gotten);
         console.log("AllSnapshots: ", allSnapshots);
-        return true;
+        return newAo3WorkDom;
     } else {
         alert("A day hasn't passed. Calm down");
-        return false;
+        return newAo3WorkDom;
     }
 }
-
+async function scrapeAndUpdate(link) {
+    let Ao3Dom = await scrapeWebsite(link);
+    displaySnapshot(Ao3Dom.getWorkId());
+}
 
 async function displaySnapshot(workId, index = -1): Promise<boolean> {
     let allSnapshots = await indexDB.getAllSnapshotsFromWork(workId);
@@ -65,6 +69,7 @@ async function displaySnapshot(workId, index = -1): Promise<boolean> {
 }
 let scraperController = {
     scrapeWebsite,
-    displaySnapshot
+    displaySnapshot,
+    scrapeAndUpdate
 }
 export default scraperController
