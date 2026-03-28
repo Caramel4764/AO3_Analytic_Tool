@@ -88,3 +88,20 @@ export interface ChartConfigParam {
     newChapterColor: string;
     getChartCallback: () => Chart | undefined;
 }
+export interface AnalyticElements {
+    kudoCount: HTMLParagraphElement | null,
+    graphGalleryDiv: HTMLDivElement | null,
+    hitChartCtx: HTMLCanvasElement | null,
+    kudoChartCtx: HTMLCanvasElement | null,
+    hitChart: any | null,
+    kudoChart: any | null,
+    titleHeader: HTMLElement | null,
+    hitCount: HTMLParagraphElement | null,
+    engagementCount: HTMLParagraphElement | null,
+    commentCount: HTMLParagraphElement | null,
+    bookmarkCount: HTMLParagraphElement | null,
+    kudoHighCount: HTMLParagraphElement | null,
+    hitHighCount: HTMLParagraphElement | null,
+    commentHighCount: HTMLParagraphElement | null,
+    bookmarkHighCount: HTMLParagraphElement | null,
+}
