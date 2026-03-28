@@ -1,34 +1,43 @@
-import type{ ChartConfigParam, Snapshot, Metadata, GraphMetric, GraphData } from "./data/types";
+import type{ AnalyticElements, ChartConfigParam, Snapshot, Metadata, GraphMetric, GraphData } from "./data/types";
 import dateUtils from "./utils/dateUtils";
 import Chart from 'chart.js/auto';
-import { _adapters } from 'chart.js';
 import 'chartjs-adapter-luxon';
-import testingData from "./data/testingData";
 import numberUtils from "./utils/numberUtils";
-import indexDb from "./indexDB";
-import annotationPlugin from 'chartjs-plugin-annotation';
 import stringUtils from "./utils/stringUtils";
+let rootEle = document.getElementById("div_holding_multi_stats");
 
 const millisecondPerDay = 1000*60*60*24;
-
 
 class CAnalytic {
   snapshots: Snapshot[];
   metadata: Metadata;
-  kudoChart;
-  hitChart;
-  kudoChartCtx: HTMLCanvasElement;
-  hitChartCtx: HTMLCanvasElement;
   graphMetrics: GraphMetric[];
-  graphGalleryDiv:HTMLDivElement;
-  //consider graphGalleryDiv in constructor
-  constructor(snapshots:Snapshot[], metadata:Metadata, graphGalleryDiv:HTMLDivElement) {
+  elements:AnalyticElements = {
+    titleHeader: null,
+    kudoCount: null,
+    hitCount: null,
+    engagementCount: null,
+    commentCount: null,
+    bookmarkCount: null,
+    kudoHighCount: null,
+    hitHighCount: null,
+    commentHighCount: null,
+    bookmarkHighCount: null,
+    graphGalleryDiv: null,
+    kudoChartCtx: null,
+    hitChartCtx: null,
+    kudoChart: null,
+    hitChart: null,
+  }
+  constructor(snapshots:Snapshot[], metadata:Metadata) {
     this.snapshots = snapshots;
     this.metadata = metadata;
-    this.graphGalleryDiv = graphGalleryDiv;
     this.graphMetrics = this.getGraphMetric();
-    this.kudoChartCtx = this.createCanvas("kudo");
-    this.hitChartCtx = this.createCanvas("hit");
+    //this.elements.graphGalleryDiv = graphGalleryDiv;
+    this.createBlock();
+    this.getHTMLElements();
+    this.elements.kudoChartCtx = this.createCanvas("kudo");
+    this.elements.hitChartCtx = this.createCanvas("hit");
   }
   private createCanvas(name :string): HTMLCanvasElement {
     let graphDiv = document.createElement("div");
@@ -38,10 +47,71 @@ class CAnalytic {
     title.textContent = `${stringUtils.capitalize(name)}s per day`;
     let canvas = document.createElement("canvas");
     canvas.id = `${name}_per_day_graph`;
-    this.graphGalleryDiv.appendChild(graphDiv);
+    this.elements.graphGalleryDiv.appendChild(graphDiv);
     graphDiv.appendChild(title);
     graphDiv.appendChild(canvas);
     return canvas;
+  }
+  private getId() {
+    return this.metadata.workId;
+  }
+  private createBlock(name:string="nothing") {
+    const block = document.createElement('div');
+    block.innerHTML = `
+      <div id="stat_content_${this.getId()}">
+        <h2 id="work_title_${this.getId()}">Title</h2>
+        <div class="basic_stat">
+            <div class="stat_flex">
+                <div class="inner_stat_flex">
+                    <div id='kudo_div_${this.getId()}' class="basic_stat_div kudo_div">Kudos: <span id="kudo_count_${this.getId()}">0</span></div>
+                    <div id='hit_div_${this.getId()}' class="basic_stat_div hit_div">Hits: <span id="hit_count_${this.getId()}">0</span></div>
+                    <div id='comment_div_${this.getId()}' class="basic_stat_div comment_div">Comments: <span id="comment_count_${this.getId()}">0</span></div>
+                    <div id='bookmark_div_${this.getId()}' class="basic_stat_div bookmark_div">Bookmarks: <span id="bookmark_count_${this.getId()}">0</span></div>
+                </div>
+                <div class="inner_stat_flex" id="basic_stat_high_div_${this.getId()}">
+                    <div id='kudo_high_div_${this.getId()}' class="basic_stat_div kudo_div">Kudo High: <span id="kudo_count_high_${this.getId()}">0</span></div>
+                    <div id='hit_high_div_${this.getId()}' class="basic_stat_div hit_div">Hit High: <span id="hit_count_high_${this.getId()}">0</span></div>
+                    <div id='comment_high_div_${this.getId()}' class="basic_stat_div comment_div">Comment High: <span id="comment_count_high_${this.getId()}">0</span></div>
+                    <div id='bookmark_high_div_${this.getId()}' class="basic_stat_div bookmark_div">Bookmark High: <span id="bookmark_count_high_${this.getId()}">0</span></div>
+                </div>
+                <div class="inner_stat_flex">
+                    <div class="basic_stat_div">Engagement: <span id="engagement_count_${this.getId()}">0</span></div>
+                </div>
+            </div>
+        </div>
+        <div class="graph_gallery" id="graph_gallery_${this.getId()}">
+        </div>
+      </div>
+    `;
+    rootEle.appendChild(block);
+  }
+  private getHTMLElements() {
+    this.elements.titleHeader = document.getElementById(`work_title_${this.getId()}`);
+    this.elements.kudoCount = document.getElementById(`kudo_count_${this.getId()}`) as HTMLParagraphElement;
+    this.elements.hitCount = document.getElementById(`hit_count_${this.getId()}`) as HTMLParagraphElement;
+    this.elements.engagementCount = document.getElementById(`engagement_count_${this.getId()}`) as HTMLParagraphElement;
+    this.elements.commentCount = document.getElementById(`comment_count_${this.getId()}`) as HTMLParagraphElement;
+    this.elements.bookmarkCount = document.getElementById(`bookmark_count_${this.getId()}`) as HTMLParagraphElement;
+    this.elements.kudoHighCount = document.getElementById(`kudo_count_high_${this.getId()}`) as HTMLParagraphElement;
+    this.elements.hitHighCount = document.getElementById(`hit_count_high_${this.getId()}`) as HTMLParagraphElement;
+    this.elements.commentHighCount = document.getElementById(`comment_count_high_${this.getId()}`) as HTMLParagraphElement;
+    this.elements.bookmarkHighCount = document.getElementById(`bookmark_count_high_${this.getId()}`) as HTMLParagraphElement;
+    this.elements.graphGalleryDiv = document.getElementById(`graph_gallery_${this.getId()}`) as HTMLDivElement;
+  }
+  private updateStatBlock(index:number=this.snapshots.length-1) {
+    let tarSnap = this.snapshots[index];
+    this.elements.titleHeader.textContent = this.metadata.title;
+    this.elements.kudoCount.textContent = ""+tarSnap.kudos;
+    this.elements.hitCount.textContent = ""+tarSnap.hits;
+    this.elements.commentCount.textContent = ""+tarSnap.comments;
+    this.elements.bookmarkCount.textContent = ""+tarSnap.bookmarks;
+
+    this.elements.engagementCount.textContent = ""+numberUtils.calculateEngagement(tarSnap.kudos, tarSnap.hits);
+
+    this.elements.kudoHighCount.textContent = ""+tarSnap.hits;
+    this.elements.hitHighCount.textContent = ""+tarSnap.hits;
+    this.elements.commentHighCount.textContent = ""+tarSnap.hits;
+    this.elements.bookmarkHighCount.textContent = ""+tarSnap.hits;
   }
   private missingMetricImputation(metrics: GraphMetric[], millisecondDiff:number = 2*millisecondPerDay): GraphMetric[] {
     let imputatedMetric = [];
@@ -193,35 +263,35 @@ class CAnalytic {
     return graphMetrics;
   }
   private async updateKudoGraph(snapshots:Snapshot[] = this.snapshots): Promise<void> {
-    if (this.kudoChart) {
-      this.kudoChart.destroy();
+    if (this.elements.kudoChart) {
+      this.elements.kudoChart.destroy();
     }
     let graphMetrics = await this.getGraphMetric();
     let graphData = this.generateGraphDataset(graphMetrics, "kudosPerDay");
-    this.kudoChart = new Chart(this.kudoChartCtx, this.createChartConfig({
+    this.elements.kudoChart = new Chart(this.elements.kudoChartCtx, this.createChartConfig({
       label: 'Daily Kudos',
       data: graphData,
       color: '#FF0000',
       tooltipLabel: 'Kudos',
       snapshots: snapshots,
       newChapterColor: "#fcdada",
-      getChartCallback: () => this.kudoChart
+      getChartCallback: () => this.elements.kudoChart
     }) as any);
   }
   private async updateHitGraph(snapshots:Snapshot[] = this.snapshots): Promise<void> {
-    if (this.hitChart) {
-      this.hitChart.destroy();
+    if (this.elements.hitChart) {
+      this.elements.hitChart.destroy();
     }
     let graphMetrics = this.getGraphMetric();
     let graphData = this.generateGraphDataset(graphMetrics, "hitsPerDay");
-    this.hitChart = new Chart(this.hitChartCtx, this.createChartConfig({
+    this.elements.hitChart = new Chart(this.elements.hitChartCtx, this.createChartConfig({
       label: 'Daily Hits',
       data: graphData,
       color: '#1751ff',
       tooltipLabel: 'Hits',
       snapshots: snapshots,
       newChapterColor: "#d6e1ff",
-      getChartCallback: () => this.hitChart
+      getChartCallback: () => this.elements.hitChart
     }) as any);
   }
   private prepGraphData(graphMetrics:GraphMetric[]): GraphMetric[] {
@@ -238,7 +308,9 @@ class CAnalytic {
     numberUtils.metricPerDay(graphMetrics, "comments", "commentsPerDay");
     numberUtils.metricPerDay(graphMetrics, "bookmarks", "bookmarksPerDay");
   }
-  public draw() {
+
+  public draw(): void {
+    this.updateStatBlock();
     this.updateKudoGraph();
     this.updateHitGraph();
   }
