@@ -34,8 +34,6 @@ class Ao3WorkDom {
         this.parseStat();
         console.log("THIS.SNAP: ", this.snapshot);
         console.log("THIS.META: ", this.metadata);
-
-
     }
     getSnapshot():Snapshot {
         return this.snapshot;

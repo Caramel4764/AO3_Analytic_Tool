@@ -2,6 +2,7 @@ import numberUtils from "./utils/numberUtils";
 import graphDrawer from "./graphDrawer";
 import dateUtils from "./utils/dateUtils"
 import testingData from "./data/testingData";
+import CAnalytic from "./CAnalytic";
 import type{ Metadata, Snapshot } from "./data/types";
 let titleHeader = document.getElementById("work_title");
 let kudoCount = document.getElementById("kudo_count");
@@ -13,6 +14,7 @@ let kudoHighCount = document.getElementById("kudo_count_high");
 let hitHighCount = document.getElementById("hit_count_high");
 let commentHighCount = document.getElementById("comment_count_high");
 let bookmarkHighCount = document.getElementById("bookmark_count_high");
+let graphGalleryDiv = document.getElementById("graph_gallery") as HTMLDivElement;
 
 function updateTitle(title):void {
   titleHeader.textContent = title;
@@ -66,14 +68,8 @@ async function updateStats(index:number, snapshots:Snapshot[], metadata:Metadata
   updateTitle(metadata.title);
   updateComments(tarSnap.comments);
   updateBookmark(tarSnap.bookmarks);
-  let metrics = await graphDrawer.getMetrics(snapshots);
-  graphDrawer.calculateAdditionalGraphData(metrics);
-  updateHitHigh(numberUtils.findMaxOfGraphMetricProperty(metrics, "hitsPerDay"));
-  updateKudoHigh(numberUtils.findMaxOfGraphMetricProperty(metrics, "kudosPerDay"));
-  updateCommentsHigh(numberUtils.findMaxOfGraphMetricProperty(metrics, "commentsPerDay"));
-  updateBookmarkHigh(numberUtils.findMaxOfGraphMetricProperty(metrics, "bookmarksPerDay"));
-  graphDrawer.updateKudoGraph(snapshots);
-  graphDrawer.updateHitGraph(snapshots);
+  let GraphAnalytic = new CAnalytic(snapshots, metadata, graphGalleryDiv); 
+  GraphAnalytic.draw();
 }
 
 let HTMLUpdate = {
