@@ -1,11 +1,11 @@
 import HTMLParserUtil from "./utils/HTMLParserUtil";
 import Ao3WorkDom from "./Ao3WorkDom";
 import indexDB from "./indexDB";
-import HTMLUpdate from "./HTMLUpdate"
 import dateUtils from "./utils/dateUtils";
 import type { Metadata } from "./data/types";
 import config from "./config";
 import asyncUtil from "./utils/asyncUtil";
+import CAnalytic from "./CAnalytic";
 //import dateUtils from "./utils/dateUtils"
 async function scrapeWebsite (link): Promise<boolean> {
     //plan
@@ -81,19 +81,25 @@ async function displaySnapshot(workId, index = -1): Promise<boolean> {
         return false;
     }
     console.log("ALL SNAP: ", allSnapshots)
-    //console.log(allSnapshots[snapshotIndex]);
     let workMetadata = await indexDB.findWork(allSnapshots[snapshotIndex].workId);
     console.log("Snapshots: ", allSnapshots);
     console.log("Metadata: ", workMetadata);
     let allMetadata = await indexDB.getAllWork();
     console.log("All metadata: ", allMetadata);
-    HTMLUpdate.updateStats(snapshotIndex, allSnapshots, workMetadata);
+    const Analytic = new CAnalytic(allSnapshots, workMetadata);
+    Analytic.draw();
     return true;
+}
+async function displayAllWork(listOfWork:Metadata[]) {
+    listOfWork.map(async(work)=>{
+        await displaySnapshot(work.workId);
+    });
 }
 let scraperController = {
     scrapeWebsite,
     displaySnapshot,
     scrapeAndUpdate,
-    scrapeMultiWork
+    scrapeMultiWork,
+    displayAllWork
 }
 export default scraperController
