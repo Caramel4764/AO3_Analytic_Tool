@@ -23,6 +23,11 @@ trackBtn.addEventListener('click', async function() {
         } else {
             scraperController.scrapeMultiWork(allMetadata);
         }
+        if (link) {
+            scraperController.scrapeAndUpdate(link);
+        } else {
+            scraperController.scrapeMultiWork(allMetadata);
+        }
     } catch(error) {
         console.error(error);
         alert("invalid link");
@@ -33,9 +38,12 @@ parseBtn.addEventListener('click', function() {
 })
 // look for indexDB and display if something is there
 
+
 /*if (!isThereData && !isDBEmpty) {
     scraperController.displaySnapshot(workID);
 }*/
+let isDBEmpty = await indexDB.isDBByWorkEmpty(workID);
+let isThereData = await indexDB.isDBEmpty();
 let isDBEmpty = await indexDB.isDBByWorkEmpty(workID);
 let isThereData = await indexDB.isDBEmpty();
 if (!isThereData) {
