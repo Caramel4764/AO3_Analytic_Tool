@@ -1,7 +1,7 @@
 //import HTMLParserUtil from "./utils/HTMLParserUtil";
 //import Ao3WorkDom from "./Ao3WorkDom";
-import indexDB from "./indexDB";
-import scraperController from "./scraperController";
+import indexDB from "../indexDB";
+import scraperController from "../scraperController";
 
 const allMetadata = await indexDB.getAllWork();
 console.log("%c All metadata: ", "color:purple;",allMetadata);
