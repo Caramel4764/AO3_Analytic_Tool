@@ -4,9 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AO3 Analytic Tool</title>
-    <link rel="stylesheet" href="../../dashboard.css">
+    <link rel="stylesheet" href="./dashboard.css">
 </head>
 <body>
+    <div id="dashboardAction">
+        <button>Save as HTML</button>
+        <button>Export Data</button>
+        <button>Export as CVS</button>
+    </div>
     <div class="grid_center">
         <div class='flex_col_center' id="main_div">
             <form class='flex_col_center' id='link_form' action="/submit">
@@ -20,6 +25,6 @@
     <!--Content loaded here-->
     <div id="div_holding_multi_stats">
     </div>
-    <script type="module" src="dashboard.ts"></script>
+    <script type="module" src="./src/dashboard/dashboard.ts"></script>
 </body>
 </html>

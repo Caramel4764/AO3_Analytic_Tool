@@ -8,14 +8,17 @@ console.log("%c All metadata: ", "color:purple;",allMetadata);
 const linkInput = document.getElementById("link_input") as HTMLInputElement;
 const trackBtn = document.getElementById("track_btn");
 const parseBtn = document.getElementById("parse_btn");
-
-const workID = 123;
+const params = new URLSearchParams(window.location.search);
+const workID = Number(params.get("workId"));
+//const workID = 123;
 //let newAo3WorkDom;
 trackBtn.addEventListener('click', async function() {
     const res = await fetch('http://localhost:3000/testURL');
     const data = await res.json();
     let link;
     link = linkInput.value;
+    //let workUrl = indexDB.findWork(workID);
+    //link = workUrl;
     try {
         //timer tick down
         if (link) {
@@ -39,11 +42,16 @@ parseBtn.addEventListener('click', function() {
 // look for indexDB and display if something is there
 
 
-/*if (!isThereData && !isDBEmpty) {
+/*if (!isNoData && !isDBEmpty) {
     scraperController.displaySnapshot(workID);
 }*/
 let isDBEmpty = await indexDB.isDBByWorkEmpty(workID);
-let isThereData = await indexDB.isDBEmpty();
-if (!isThereData) {
-    scraperController.displayAllWork(allMetadata);
+let isNoData = await indexDB.isDBEmpty();
+if (!isNoData) {
+    //specified work
+    if (workID) {
+        scraperController.displaySnapshot(workID);
+    } else {
+        scraperController.displayAllWork(allMetadata);
+    }
 }

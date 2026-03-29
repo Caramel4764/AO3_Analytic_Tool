@@ -34,6 +34,8 @@
     "vite": "^8.0.1"
   },
   "devDependencies": {
-    "typescript": "^5.9.3"
+    "@types/chrome": "^0.1.38",
+    "typescript": "^5.9.3",
+    "vite-plugin-chrome-extension": "^0.0.7"
   }
 }
