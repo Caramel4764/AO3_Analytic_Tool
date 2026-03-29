@@ -6,16 +6,16 @@
   "action": {
     "default_popup": "popup.html"
   },
-  "permissions": ["storage", "alarms", "scripting"],
+  "permissions": ["storage", "alarms", "scripting", "tabs"],
 
   "content_scripts": [
     {
       "matches": ["https://archiveofourown.org/*"],
-      "js": ["scripts/main.js"]
+      "js": ["dashboard_script.js"]
     }
   ],
 
   "background": {
-    "service_worker": "scripts/src/background.ts"
+    "service_worker": "background_script.js"
   }
 }
