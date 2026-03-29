@@ -108,7 +108,10 @@ class CAnalytic {
     this.elements.bookmarkHighCount = document.getElementById(`bookmark_count_high_${this.getId()}`) as HTMLParagraphElement;
     this.elements.graphGalleryDiv = document.getElementById(`graph_gallery_${this.getId()}`) as HTMLDivElement;
   }
-  private updateStatBlock(index:number=this.snapshots.length-1) {
+  private getHigh(metrics: GraphMetric[], key: keyof GraphMetric):number {
+    return numberUtils.calculateHighestMetric(metrics, key);
+  }
+  private updateStatBlock(index:number = this.snapshots.length-1) {
     let tarSnap = this.snapshots[index];
     this.elements.titleHeader.textContent = this.metadata.title;
     this.elements.kudoCount.textContent = ""+tarSnap.kudos;
@@ -118,10 +121,10 @@ class CAnalytic {
 
     this.elements.engagementCount.textContent = ""+numberUtils.calculateEngagement(tarSnap.kudos, tarSnap.hits);
 
-    this.elements.kudoHighCount.textContent = ""+tarSnap.hits;
-    this.elements.hitHighCount.textContent = ""+tarSnap.hits;
-    this.elements.commentHighCount.textContent = ""+tarSnap.hits;
-    this.elements.bookmarkHighCount.textContent = ""+tarSnap.hits;
+    this.elements.kudoHighCount.textContent = "" + this.getHigh(this.graphMetrics, "kudosPerDay");
+    this.elements.hitHighCount.textContent = "" + this.getHigh(this.graphMetrics, "hitsPerDay");
+    this.elements.commentHighCount.textContent = "" + this.getHigh(this.graphMetrics, "commentsPerDay");
+    this.elements.bookmarkHighCount.textContent = "" + this.getHigh(this.graphMetrics, "bookmarksPerDay");
   }
   private missingMetricImputation(metrics: GraphMetric[], millisecondDiff:number = 2*millisecondPerDay): GraphMetric[] {
     let imputatedMetric = [];
@@ -298,6 +301,7 @@ class CAnalytic {
     numberUtils.metricPerDay(graphMetrics, "kudos", "kudosPerDay");
     numberUtils.metricPerDay(graphMetrics, "hits", "hitsPerDay");
     numberUtils.metricPerDay(graphMetrics, "comments", "commentsPerDay");
+    //console.log("IMPORTANT2: ", graphMetrics);
     numberUtils.metricPerDay(graphMetrics, "bookmarks", "bookmarksPerDay");
   }
   private updateDataInfo(snapshots: Snapshot[], metadata: Metadata) {

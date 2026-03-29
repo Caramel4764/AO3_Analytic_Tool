@@ -35,6 +35,20 @@ function metricPerDay(metrics:GraphMetric[], startStatKey:string, endStatKey:str
         }
     }
 }
+function calculateHighestMetric(metrics:GraphMetric[], key: keyof GraphMetric): number {
+    if (metrics.length == 0) {
+        return null;
+    } else {
+        let highest;
+        highest = metrics[0][key];
+        for (let i = 1; i < metrics.length; i++) {
+            if (metrics[i][key] && metrics[i][key] > highest) {
+                highest = metrics[i][key];
+            }
+        }
+        return highest;
+    }
+}
 function findMaxOfGraphMetricProperty(list: GraphMetric[], property:string): number {
     if (list.length==0) {
         return null;
@@ -51,6 +65,7 @@ let numberUtils = {
     removeCommaFromNum,
     calculateEngagement,
     metricPerDay,
-    findMaxOfGraphMetricProperty
+    findMaxOfGraphMetricProperty,
+    calculateHighestMetric
 }
 export default numberUtils;
