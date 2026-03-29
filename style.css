@@ -10,9 +10,9 @@ body{
     --hit-bg: #d6e1ff;
     --hit: #1751ff;
     --comment: rgb(0, 75, 0);
-    --comment-bg: rgb(219, 255, 219);
+    --comment-bg: rgb(215, 231, 215);
     --bookmark: rgb(78, 73, 0);
-    --bookmark-bg: rgb(255, 254, 216);
+    --bookmark-bg: rgb(247, 245, 189);
 }
 
 .flex_col_center {
@@ -36,11 +36,17 @@ body{
     margin: 0;
     margin-bottom: 10px;
 }
-#kudo_per_day_graph_div {
+.kudo_per_day_graph_div {
     background-color: rgb(255, 239, 239);
 }
-#hit_per_day_graph_div {
+.hit_per_day_graph_div {
     background-color: rgb(233, 249, 255);
+}
+.comment_per_day_graph_div {
+    background-color: #eaffea;
+}
+.bookmark_per_day_graph_div {
+    background-color: rgb(255, 253, 228);
 }
 .stat_flex {
     display: grid;
