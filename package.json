@@ -3,7 +3,7 @@
   "type": "module",
   "version": "1.0.0",
   "description": "A local web scaper that tracks the history of a given AO3 work through link. It creates snapshots on a daily basis and generates analytics from the AO3 page data",
-  "main": "main.js",
+  "main": "src/dashboard/index.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node backend/server.js",

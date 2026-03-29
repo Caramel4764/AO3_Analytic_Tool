@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AO3 Analytic Tool</title>
+    <link rel="stylesheet" href="../../dashboard.css">
+</head>
+<body>
+    <div class="grid_center">
+        <div class='flex_col_center' id="main_div">
+            <form class='flex_col_center' id='link_form' action="/submit">
+                <label id='link_label' for="work_link">AO3 Work Page Link:</label>
+                <input id='link_input' type="text" name="work_link">
+            </form>
+            <button id="track_btn">Track</button>
+            <button id="parse_btn">Compute</button>
+        </div>
+    </div>
+    <!--Content loaded here-->
+    <div id="div_holding_multi_stats">
+    </div>
+    <script type="module" src="dashboard.ts"></script>
+</body>
+</html>
