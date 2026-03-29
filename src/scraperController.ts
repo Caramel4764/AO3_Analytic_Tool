@@ -7,6 +7,7 @@ import config from "./config";
 import asyncUtil from "./utils/asyncUtil";
 import CAnalytic from "./CAnalytic";
 //import dateUtils from "./utils/dateUtils"
+let allCAnalytic = new Map<number, CAnalytic>();
 async function scrapeWebsite (link): Promise<boolean> {
     //plan
     //1. get id
@@ -82,13 +83,21 @@ async function displaySnapshot(workId, index = -1): Promise<boolean> {
     }
     console.log("ALL SNAP: ", allSnapshots)
     let workMetadata = await indexDB.findWork(allSnapshots[snapshotIndex].workId);
-    console.log("Snapshots: ", allSnapshots);
-    console.log("Metadata: ", workMetadata);
+    console.log('%c Snapshots: ', 'color: pink; font-weight: bold;', allSnapshots);
+    console.log("%c Metadata: ", 'color: pink; font-weight: bold;', workMetadata);
     let allMetadata = await indexDB.getAllWork();
     console.log("All metadata: ", allMetadata);
-    const Analytic = new CAnalytic(allSnapshots, workMetadata);
-    Analytic.draw();
-    return true;
+    if (allCAnalytic.has(workId)) {
+        console.log("Graph already exist so I'll update");
+        allCAnalytic.get(workId).update(allSnapshots, workMetadata);
+        return true;
+    } else {
+        const Analytic = new CAnalytic(allSnapshots, workMetadata);
+        Analytic.draw();
+        allCAnalytic.set(workId, Analytic);
+        console.log("Graph doesn't exist so I'll create");
+        return true;
+    }
 }
 async function displayAllWork(listOfWork:Metadata[]) {
     listOfWork.map(async(work)=>{

@@ -33,25 +33,30 @@ class CAnalytic {
     hitChartCtx: null,
     kudoChart: null,
     hitChart: null,
+    bookmarkChart: null,
+    bookmarkChartCtx: null,
+    commentChart: null,
+    commentChartCtx: null
   }
   constructor(snapshots:Snapshot[], metadata:Metadata) {
     this.snapshots = snapshots;
     this.metadata = metadata;
     this.graphMetrics = this.getGraphMetric();
-    //this.elements.graphGalleryDiv = graphGalleryDiv;
     this.createBlock();
     this.getHTMLElements();
     this.elements.kudoChartCtx = this.createCanvas("kudo");
     this.elements.hitChartCtx = this.createCanvas("hit");
+    this.elements.commentChartCtx = this.createCanvas("comment");
+    this.elements.bookmarkChartCtx = this.createCanvas("bookmark");
   }
-  private createCanvas(name :string): HTMLCanvasElement {
+  private createCanvas(key :string): HTMLCanvasElement {
     let graphDiv = document.createElement("div");
     graphDiv.className = "graph_div";
-    graphDiv.id = `${name}_per_day_graph_div`;
+    graphDiv.classList.add(`${key}_per_day_graph_div`);
     let title = document.createElement("h3");
-    title.textContent = `${stringUtils.capitalize(name)}s per day`;
+    title.textContent = `${stringUtils.capitalize(key)}s per day`;
     let canvas = document.createElement("canvas");
-    canvas.id = `${name}_per_day_graph`;
+    canvas.classList.add(`${key}_per_day_graph`);
     this.elements.graphGalleryDiv.appendChild(graphDiv);
     graphDiv.appendChild(title);
     graphDiv.appendChild(canvas);
@@ -136,7 +141,7 @@ class CAnalytic {
     imputatedMetric.push(metrics[metrics.length-1]);
     return imputatedMetric;
   }
-  private createChartConfig({ label, data, color, tooltipLabel, snapshots, newChapterColor, getChartCallback }: ChartConfigParam) {
+  private createChartConfig({ label, data, color, tooltipLabel, snapshots, newChapterColor, getChartCallback }: any) {
     let annotations = this.generateAnnotations(snapshots, getChartCallback, newChapterColor)
     return {
       type: 'line',
@@ -267,36 +272,18 @@ class CAnalytic {
     graphMetrics = this.prepGraphData(graphMetrics);
     return graphMetrics;
   }
-  private async updateKudoGraph(snapshots:Snapshot[] = this.snapshots): Promise<void> {
-    if (this.elements.kudoChart) {
-      this.elements.kudoChart.destroy();
-    }
-    let graphMetrics = await this.getGraphMetric();
-    let graphData = this.generateGraphDataset(graphMetrics, "kudosPerDay");
-    this.elements.kudoChart = new Chart(this.elements.kudoChartCtx, this.createChartConfig({
-      label: 'Daily Kudos',
-      data: graphData,
-      color: '#FF0000',
-      tooltipLabel: 'Kudos',
-      snapshots: snapshots,
-      newChapterColor: "#fcdada",
-      getChartCallback: () => this.elements.kudoChart
-    }) as any);
-  }
-  private async updateHitGraph(snapshots:Snapshot[] = this.snapshots): Promise<void> {
-    if (this.elements.hitChart) {
-      this.elements.hitChart.destroy();
+  private createGraph(config:ChartConfigParam) {
+    const chartKey = `${config.key}Chart`;
+    const ctxKey = `${config.key}ChartCtx`;
+    if (this.elements[chartKey]) {
+      this.elements[chartKey].destroy();
     }
     let graphMetrics = this.getGraphMetric();
-    let graphData = this.generateGraphDataset(graphMetrics, "hitsPerDay");
-    this.elements.hitChart = new Chart(this.elements.hitChartCtx, this.createChartConfig({
-      label: 'Daily Hits',
+    let graphData = this.generateGraphDataset(graphMetrics, `${config.key}sPerDay`);
+    this.elements[chartKey] = new Chart(this.elements[ctxKey], this.createChartConfig({
+      ...config,
       data: graphData,
-      color: '#1751ff',
-      tooltipLabel: 'Hits',
-      snapshots: snapshots,
-      newChapterColor: "#d6e1ff",
-      getChartCallback: () => this.elements.hitChart
+      getChartCallback: ()=> this.elements[chartKey]
     }) as any);
   }
   private prepGraphData(graphMetrics:GraphMetric[]): GraphMetric[] {
@@ -313,11 +300,62 @@ class CAnalytic {
     numberUtils.metricPerDay(graphMetrics, "comments", "commentsPerDay");
     numberUtils.metricPerDay(graphMetrics, "bookmarks", "bookmarksPerDay");
   }
-
+  private updateDataInfo(snapshots: Snapshot[], metadata: Metadata) {
+    this.snapshots = snapshots;
+    this.metadata = metadata
+  }
+  public updateGraph(graph: any, key:string):void {
+    let graphMetrics = this.getGraphMetric();
+    let newGraphData = this.generateGraphDataset(graphMetrics, `${key}sPerDay`);
+    graph.data.datasets[0].data = newGraphData;
+    graph.update();
+  }
+  public update(snapshots: Snapshot[], metadata: Metadata): void {
+    this.updateDataInfo(snapshots, metadata);
+    this.updateStatBlock();
+    this.updateGraph(this.elements.kudoChart, "kudo");
+    this.updateGraph(this.elements.hitChart, "hit");
+    this.updateGraph(this.elements.commentChart, "comment");
+    this.updateGraph(this.elements.bookmarkChart, "bookmark");
+  }
   public draw(): void {
     this.updateStatBlock();
-    this.updateKudoGraph();
-    this.updateHitGraph();
+    const kudoConfig: ChartConfigParam = {
+      label: "Daily Kudos",
+      color: "#FF0000",
+      tooltipLabel: "Kudo",
+      snapshots: this.snapshots,
+      newChapterColor: "#fcdada",
+      key: "kudo",
+    }
+    const hitConfig: ChartConfigParam = {
+      label: "Daily Hits",
+      color: "#1751ff",
+      tooltipLabel: "Hit",
+      snapshots: this.snapshots,
+      newChapterColor: "#d6e1ff",
+      key: "hit",
+    }
+    const commentConfig: ChartConfigParam = {
+      label: "Daily Comment",
+      color: "rgb(2, 107, 2)",
+      tooltipLabel: "Comment",
+      snapshots: this.snapshots,
+      newChapterColor: "rgb(215, 231, 215)",
+      key: "comment",
+    }
+    const bookmarkConfig: ChartConfigParam = {
+      label: "Daily Bookmarks",
+      color: "rgb(200, 187, 6)",
+      tooltipLabel: "Bookmark",
+      snapshots: this.snapshots,
+      newChapterColor: "rgb(247, 245, 189)",
+      key: "bookmark",
+    }
+    this.createGraph(kudoConfig);
+    this.createGraph(hitConfig);
+    this.createGraph(commentConfig);
+    this.createGraph(bookmarkConfig);
   }
 }
 

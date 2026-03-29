@@ -81,12 +81,13 @@ export interface GraphData {
 
 export interface ChartConfigParam {
     label: string;
-    data: GraphData[];
+    //data: GraphData[];
     color: string;
     tooltipLabel: string;
     snapshots: Snapshot[];
     newChapterColor: string;
-    getChartCallback: () => Chart | undefined;
+    key: string;
+    //getChartCallback: () => Chart | undefined;
 }
 export interface AnalyticElements {
     kudoCount: HTMLParagraphElement | null,
@@ -95,6 +96,10 @@ export interface AnalyticElements {
     kudoChartCtx: HTMLCanvasElement | null,
     hitChart: any | null,
     kudoChart: any | null,
+    bookmarkChartCtx: HTMLCanvasElement | null,
+    commentChartCtx: HTMLCanvasElement | null,
+    bookmarkChart: any | null,
+    commentChart: any | null,
     titleHeader: HTMLElement | null,
     hitCount: HTMLParagraphElement | null,
     engagementCount: HTMLParagraphElement | null,
