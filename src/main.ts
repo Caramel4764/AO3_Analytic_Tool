@@ -3,6 +3,8 @@
 import indexDB from "./indexDB";
 import scraperController from "./scraperController";
 
+const allMetadata = await indexDB.getAllWork();
+
 const linkInput = document.getElementById("link_input") as HTMLInputElement;
 const trackBtn = document.getElementById("track_btn");
 const parseBtn = document.getElementById("parse_btn");
@@ -16,7 +18,11 @@ trackBtn.addEventListener('click', async function() {
     link = linkInput.value;
     try {
         //timer tick down
-        scraperController.scrapeAndUpdate(link);
+        if (link) {
+            scraperController.scrapeAndUpdate(link);
+        } else {
+            scraperController.scrapeMultiWork(allMetadata);
+        }
     } catch(error) {
         console.error(error);
         alert("invalid link");
@@ -26,12 +32,12 @@ parseBtn.addEventListener('click', function() {
     scraperController.displaySnapshot(workID);
 })
 // look for indexDB and display if something is there
-const allMetadata = await indexDB.getAllWork();
-let isThereData = await indexDB.isDBEmpty();
-let isDBEmpty = await indexDB.isDBByWorkEmpty(workID);
+
 /*if (!isThereData && !isDBEmpty) {
     scraperController.displaySnapshot(workID);
 }*/
+let isDBEmpty = await indexDB.isDBByWorkEmpty(workID);
+let isThereData = await indexDB.isDBEmpty();
 if (!isThereData) {
     scraperController.displayAllWork(allMetadata);
 }
