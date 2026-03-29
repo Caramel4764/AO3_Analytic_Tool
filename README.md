@@ -17,7 +17,7 @@ A local web scaper that tracks the history of a given AO3 work through link. It 
 - Add documentation
 - Allow sorting of update by metrics like date (and maybe daily kudo count, etc)
 - Turn into extension
-- Email report of tracked work with user specified frequency
+- (Modified) Email report of tracked work with user specified frequency. This is unfeasible without a server or using free tier from 3rd party. I think I will allow exporting html instead so users can save data when they want
 - Remove a work
 - Import a work's data
 - Space stats as much as possible
@@ -25,3 +25,7 @@ A local web scaper that tracks the history of a given AO3 work through link. It 
 ## Possible edge cases
 - Consider edge case when work name changes
 - What if a day gets counted twice?
+
+## Smaller later things to add (so I don't forget)
+- Comma in displayed stats
+- Fix anonymous author stored wrong (I think spacing and \n?)

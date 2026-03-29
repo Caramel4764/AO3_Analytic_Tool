@@ -2,6 +2,7 @@
 import numberUtils from "./utils/numberUtils";
 import type {Snapshot, Metadata} from "./data/types"
 import HTMLParserUtil from "./utils/HTMLParserUtil";
+import dateUtils from "./utils/dateUtils";
 
 class Ao3WorkDom {
     dom: Document;
@@ -88,7 +89,7 @@ class Ao3WorkDom {
         this.metadata.author = this.dom.querySelector("div.preface.group h3.byline.heading").textContent.trim();
         this.metadata.title = this.dom.querySelector("div.preface.group h2.title.heading").textContent.trim();
         this.metadata.timeStamp = Date.now();
-        this.metadata.timeStampReadable = new Date().toISOString();
+        this.metadata.timeStampReadable = dateUtils.timeStampToReadable(this.metadata.timeStamp);
         console.log(this.metadata);
     }
     /** Fills stat from dom

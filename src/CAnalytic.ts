@@ -5,13 +5,11 @@ import 'chartjs-adapter-luxon';
 import numberUtils from "./utils/numberUtils";
 import stringUtils from "./utils/stringUtils";
 import annotationPlugin from 'chartjs-plugin-annotation';
-import testingData from "./data/testingData";
 import { _adapters } from 'chart.js';
 Chart.register(annotationPlugin);
 
 let rootEle = document.getElementById("div_holding_multi_stats");
 
-const millisecondPerDay = 1000*60*60*24;
 
 class CAnalytic {
   snapshots: Snapshot[];
@@ -126,11 +124,11 @@ class CAnalytic {
     this.elements.commentHighCount.textContent = "" + this.getHigh(this.graphMetrics, "commentsPerDay");
     this.elements.bookmarkHighCount.textContent = "" + this.getHigh(this.graphMetrics, "bookmarksPerDay");
   }
-  private missingMetricImputation(metrics: GraphMetric[], millisecondDiff:number = 2*millisecondPerDay): GraphMetric[] {
+  private missingMetricImputation(metrics: GraphMetric[]): GraphMetric[] {
     let imputatedMetric = [];
     for (let i = 0; i<metrics.length-1; i++) {
       imputatedMetric.push(metrics[i]);
-      if (metrics[i+1].timeStamps - metrics[i].timeStamps >= millisecondDiff) {
+      if (dateUtils.isDaySkipped(metrics[i].timeStamps, metrics[i+1].timeStamps)) {
         imputatedMetric.push({
           timeStamps: null,
           hits: null,
@@ -138,6 +136,10 @@ class CAnalytic {
           kudos: null,
           kudosPerDay: null,
           dates_converted: null,
+          comments: null,
+          commentsPerDay: null,
+          bookmarks: null,
+          bookmarksPerDay: null
         });
       }
     }
