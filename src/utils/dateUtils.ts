@@ -43,8 +43,11 @@ function convertMonthToText(monthNum:number): string {
  * @returns {String} - Human readable date (mm-dd-yyyy)
  */
 function timeStampToReadable(timestamp:number):string {
-    const date = new Date(timestamp).toISOString().slice(0, 10);
-    return date;
+    const date = new Date(timestamp);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
 }
 /** Converts millisecond from Date.now into month date (IE: Jan 2)
  * 
@@ -65,10 +68,23 @@ function isNewDate(snapshot:Snapshot):boolean {
     }
     return true;
 }
+//considers new day as past midnight rather than 24 hours
+function isDaySkipped(prevTime: number, currTime: number): boolean {
+  const d1 = new Date(prevTime);
+  const d2 = new Date(currTime);
+  //normalize to midnight
+  d1.setHours(0, 0, 0, 0);
+  d2.setHours(0, 0, 0, 0);
+  //a day passed?
+  const diffDays = (d2.getTime() - d1.getTime()) / millisecondPerDay;
+;
+  return diffDays >= 2;
+}
 let dateUtils = {
     timeStampToReadable,
     hasMillisecondPassed,
-    isNewDate
+    isNewDate,
+    isDaySkipped
 }
 
 export default dateUtils;
