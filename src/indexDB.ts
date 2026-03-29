@@ -76,7 +76,6 @@ async function removeAllSnapshotsFromWork(workId: number): Promise<void> {
 }
 async function isDBByWorkEmpty(workID: number) {
     let allSnap = await getAllSnapshotsFromWork(workID);
-    console.log("TESTIN:", allSnap.length)
     if (allSnap.length == 0) {
         return true;
     }

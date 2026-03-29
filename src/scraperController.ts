@@ -7,6 +7,7 @@ import config from "./config";
 import asyncUtil from "./utils/asyncUtil";
 import CAnalytic from "./CAnalytic";
 //import dateUtils from "./utils/dateUtils"
+let allCAnalytic = new Map<number, CAnalytic>();
 async function scrapeWebsite (link): Promise<boolean> {
     //plan
     //1. get id
@@ -25,14 +26,12 @@ async function scrapeWebsite (link): Promise<boolean> {
         const currTimeReadable = dateUtils.timeStampToReadable(currTime.getTime());
         
         if (lastScrapeTimeReadable == currTimeReadable) {
-            alert("A day hasn't passed. Wait until midnight");
-            return false;
+            throw new Error(`(${workId}) A day hasn't passed. Wait until midnight before updating...`);
         }
     }
     //fetch information
     let HTMLString = await HTMLParserUtil.fetchHTML(link)
     let HTMLDom = HTMLParserUtil.stringHTMLToDom(HTMLString);
-    console.log("HTMLDom: ", HTMLDom)
     let newAo3WorkDom = new Ao3WorkDom(HTMLDom, link);
     //store info
     let allSnapshots = await indexDB.getAllSnapshots();
@@ -43,13 +42,12 @@ async function scrapeWebsite (link): Promise<boolean> {
     if (!doesWorkExistAlr) {
         //issue here
         indexDB.addWork(newAo3WorkDom.getMetadata());
-        console.log("Work successfully added: ", newAo3WorkDom.getMetadata)
+        console.log("%c Work successfully added: ", "color: green;", newAo3WorkDom.getMetadata)
     } else {
-        console.log("Work already exists: ", newAo3WorkDom.getMetadata);
+        console.log("%c Work already exists: ", "color: red;",newAo3WorkDom.getMetadata);
     }
     await indexDB.addSnapshot(currSnap);
-    console.log("Added Snapshot successfully: ", newAo3WorkDom.getSnapshot());
-    console.log("AllSnapshots: ", allSnapshots);
+    console.log("%c (Successful) Added Snapshot: ", "color: green;", newAo3WorkDom.getSnapshot());
     return true;
 }
 async function scrapeMultiWork(listOfWork: Metadata[]): Promise<void> {
@@ -71,7 +69,6 @@ async function displaySnapshot(workId, index = -1): Promise<boolean> {
     if (allSnapshots.length == 0) {
         throw new Error(`No snapshot found for given id (${workId})`);
     }
-    console.log("TEST:", allSnapshots)
     let snapshotIndex;
     // if -1, find latest
     if (index == -1) {
@@ -80,15 +77,20 @@ async function displaySnapshot(workId, index = -1): Promise<boolean> {
     if (!allSnapshots) {
         return false;
     }
-    console.log("ALL SNAP: ", allSnapshots)
     let workMetadata = await indexDB.findWork(allSnapshots[snapshotIndex].workId);
-    console.log("Snapshots: ", allSnapshots);
-    console.log("Metadata: ", workMetadata);
-    let allMetadata = await indexDB.getAllWork();
-    console.log("All metadata: ", allMetadata);
-    const Analytic = new CAnalytic(allSnapshots, workMetadata);
-    Analytic.draw();
-    return true;
+    console.log('%c Snapshots: ', 'color: pink;', allSnapshots);
+    console.log("%c Metadata: ", 'color: pink;', workMetadata);
+    if (allCAnalytic.has(workId)) {
+        console.log("%c Graph already exist so I'll update", "color: red;");
+        allCAnalytic.get(workId).update(allSnapshots, workMetadata);
+        return true;
+    } else {
+        const Analytic = new CAnalytic(allSnapshots, workMetadata);
+        Analytic.draw();
+        allCAnalytic.set(workId, Analytic);
+        console.log("%c Graph doesn't exist so I'll create", "color: green;");
+        return true;
+    }
 }
 async function displayAllWork(listOfWork:Metadata[]) {
     listOfWork.map(async(work)=>{
