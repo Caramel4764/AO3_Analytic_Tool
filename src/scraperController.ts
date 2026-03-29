@@ -8,6 +8,7 @@ import asyncUtil from "./utils/asyncUtil";
 import CAnalytic from "./CAnalytic";
 //import dateUtils from "./utils/dateUtils"
 let allCAnalytic = new Map<number, CAnalytic>();
+let allCAnalytic = new Map<number, CAnalytic>();
 async function scrapeWebsite (link): Promise<boolean> {
     //plan
     //1. get id
