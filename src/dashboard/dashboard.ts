@@ -6,7 +6,7 @@ import scraperController from "../scraperController";
 let rootEle = document.getElementById("div_holding_multi_stats");
 
 const linkInput = document.getElementById("link_input") as HTMLInputElement;
-const trackBtn = document.getElementById("track_btn");
+//const trackBtn = document.getElementById("track_btn");
 const parseBtn = document.getElementById("parse_btn");
 const params = new URLSearchParams(window.location.search);
 const workID = Number(params.get("workId"));
@@ -17,6 +17,7 @@ async function getAllMetaData() {
     console.log("%c All metadata: ", "color:purple;",allMetadata);
     return allMetadata;
 }
+/*
 trackBtn.addEventListener('click', async function() {
     const res = await fetch('http://localhost:3000/testURL');
     const data = await res.json();
@@ -41,7 +42,7 @@ trackBtn.addEventListener('click', async function() {
         console.error(error);
         alert("invalid link");
     }
-});
+});*/
 //parseBtn.addEventListener('click', function() {
     //scraperController.displaySnapshot(workID);
 //})

@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "AO3 Analytic Tracker",
+  "name": "Stats of Our Own: AO3 Analytic Tracker",
   "description": "Tracks a work's stat overtime",
   "version": "1.0",
   "action": {
