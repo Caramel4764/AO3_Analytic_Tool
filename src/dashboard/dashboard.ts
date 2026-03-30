@@ -1,5 +1,6 @@
 //import HTMLParserUtil from "./utils/HTMLParserUtil";
 //import Ao3WorkDom from "./Ao3WorkDom";
+import { snapshot } from "node:test";
 import indexDB from "../indexDB";
 import scraperController from "../scraperController";
 let rootEle = document.getElementById("div_holding_multi_stats");
@@ -54,14 +55,11 @@ trackBtn.addEventListener('click', async function() {
 async function getIsNoData() {
     return await indexDB.isDBEmpty();
 }
+
+
 async function init () {
-console.log("rootEle", rootEle);
-
-
     if (!(await getIsNoData())) {
         let allMetadata = await getAllMetaData();
-        console.log("allMetadata: ", allMetadata);
-
         //specified work
         if (workID) {
             scraperController.displaySnapshot(workID, rootEle);

@@ -35,11 +35,7 @@ class CAnalytic {
     rootEle: null
   }
   constructor(snapshots:Snapshot[], metadata:Metadata, rootEle:HTMLDivElement) {
-    console.log("rootEle: ", rootEle);
-    console.log("metadata: ", metadata.title);
     this.elements.rootEle = rootEle;
-    console.log("this.elements.rootEle: ", this.elements.rootEle);
-
     this.snapshots = snapshots;
     this.metadata = metadata;
     this.graphMetrics = this.getGraphMetric();
@@ -95,8 +91,6 @@ class CAnalytic {
         </div>
       </div>
     `;
-    console.log("IMPORTAT: ", this.elements.rootEle);
-
     this.elements.rootEle.appendChild(block);
   }
   private getHTMLElements() {
@@ -309,7 +303,6 @@ class CAnalytic {
     numberUtils.metricPerDay(graphMetrics, "kudos", "kudosPerDay");
     numberUtils.metricPerDay(graphMetrics, "hits", "hitsPerDay");
     numberUtils.metricPerDay(graphMetrics, "comments", "commentsPerDay");
-    //console.log("IMPORTANT2: ", graphMetrics);
     numberUtils.metricPerDay(graphMetrics, "bookmarks", "bookmarksPerDay");
   }
   private updateDataInfo(snapshots: Snapshot[], metadata: Metadata) {

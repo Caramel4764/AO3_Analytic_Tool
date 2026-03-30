@@ -100,7 +100,13 @@ async function getAllSnapshots(): Promise<Snapshot[]> {
         return promiseRequest(request, "Fetched all snapshot", "Fetching all snapshots failed")
     }
 }
-
+async function importSnapshots(addedSnapshots: Snapshot[]) {
+    for (let i = 0; i < addedSnapshots.length; i++) {
+        await addSnapshot(addedSnapshots[i]);
+    }
+    await cleanSameDaySnapshot();
+    console.log("successfully imported snapshot")
+}
 async function removeSnapshot(snapshotId:string): Promise<Snapshot> {
     let snapshotStore = await getStore("snapshots");
     let request = snapshotStore.delete(snapshotId);
@@ -129,6 +135,16 @@ async function getAllUniqueSnapshotDate(workId:number): Promise<Set<String>> {
     }
     return uniqueDates;
 }
+async function importMetadatas(addedMetadata: Metadata[]) {
+    for (let i = 0; i < addedMetadata.length; i++) {
+        let currMeta = addedMetadata[i]
+        if (!(await doesWorkExist(currMeta.workId))) {
+            await addWork(currMeta);
+        }
+    }
+    console.log(await getAllWork());
+    console.log("Successfully imported Metadatas");
+}
 async function doesSnapshotDateExist(snapshot: Snapshot): Promise<boolean> {
     let allUniqueDate = await getAllUniqueSnapshotDate(snapshot.workId);
     let readableDate = dateUtils.timeStampToReadable(snapshot.timeStamp);
@@ -146,14 +162,24 @@ async function doesSnapshotDateExist(snapshot: Snapshot): Promise<boolean> {
 async function cleanSameDaySnapshot(): Promise<void> {
     let allSnapshots = await getAllSnapshots();
     let allWorks = await getAllWork();
+
     for (let j = 0; j < allWorks.length; j++) {
         let currWork = allWorks[j];
-        let uniqueDates = await getAllUniqueSnapshotDate(currWork.workId);
-        for (let i = 0; i < allSnapshots.length-1; i++) {
-            let currSnap = allSnapshots[i];
-            let currDate = dateUtils.timeStampToReadable(currSnap.timeStamp);
-            if (uniqueDates.has(currDate)) {
-                removeSnapshot(currSnap.snapshotId);
+        const seenDates = new Set<string>();
+
+        // Only look at snapshots for this work, sorted oldest first
+        const workSnapshots = allSnapshots
+            .filter(s => s.workId === currWork.workId)
+            .sort((a, b) => a.timeStamp - b.timeStamp);
+
+        for (let i = 0; i < workSnapshots.length; i++) {
+            let currSnap = workSnapshots[i];
+            let currDate = dateUtils.normalizeDate(dateUtils.timeStampToReadable(currSnap.timeStamp));
+
+            if (seenDates.has(currDate)) {
+                await removeSnapshot(currSnap.snapshotId);
+            } else {
+                seenDates.add(currDate);
             }
         }
     }
@@ -231,7 +257,9 @@ let indexDB = {
     getAllSnapshotsFromWork,
     isDBEmpty,
     isDBByWorkEmpty,
-    getMostRecentSnapshotFromWork
+    getMostRecentSnapshotFromWork,
+    importSnapshots,
+    importMetadatas
 }
 
 export default indexDB;
