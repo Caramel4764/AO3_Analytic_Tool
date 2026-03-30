@@ -1,7 +1,64 @@
-#popup_main_div {
-  width: 350px;
-  height: 500px;
+:root {
+  --popup_pad_size: 10px;
+}
+
+body {
+  width: 400px;
+  height: 300px;
+  margin: 0;
+}
+
+html {
+  padding: 0;
+  margin: 0;
+}
+#popup_size_div {
+  display:flex;
+  flex-direction: column;
+}
+#extension_name {
+  margin: 0px;
 }
 .flex {
   display: flex;
+}
+#banner {
+  background-color: rgb(227, 45, 45);
+  overflow: hidden;
+  padding: var(--popup_pad_size);
+}
+#popup_main_div {
+  padding: var(--popup_pad_size);
+}
+.workTitles {
+  font-style: italic;
+  font-size: 17px;
+}
+.descDiv {
+  flex: 0 0 auto;
+  white-space: nowrap;
+  overflow: hidden;
+  max-width: 70%;
+  text-overflow: ellipsis;
+}
+.actionsDiv {
+  flex: 0 0 auto;
+  gap: 5px;
+}
+.dynamic_ele_div {
+  padding: 2px;
+}
+.flex_between {
+  display:flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+.btn_with_icon {
+  display: grid;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  background-color: transparent;
+  border:none;
 }
