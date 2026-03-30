@@ -1,6 +1,5 @@
 //import HTMLParserUtil from "./utils/HTMLParserUtil";
 //import Ao3WorkDom from "./Ao3WorkDom";
-console.log("HYE");
 import indexDB from "../indexDB";
 import scraperController from "../scraperController";
 let rootEle = document.getElementById("div_holding_multi_stats");
@@ -56,8 +55,13 @@ async function getIsNoData() {
     return await indexDB.isDBEmpty();
 }
 async function init () {
-    if (!getIsNoData) {
+console.log("rootEle", rootEle);
+
+
+    if (!(await getIsNoData())) {
         let allMetadata = await getAllMetaData();
+        console.log("allMetadata: ", allMetadata);
+
         //specified work
         if (workID) {
             scraperController.displaySnapshot(workID, rootEle);

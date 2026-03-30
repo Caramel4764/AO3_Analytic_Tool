@@ -23,6 +23,7 @@ export default defineConfig({
         entryFileNames: '[name].js', //entries
         chunkFileNames: '[name].js', //prob not needed
         assetFileNames: 'assets/[name].[ext]', //css
+        format: 'es',
       }
     },
   },

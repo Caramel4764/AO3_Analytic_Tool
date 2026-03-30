@@ -15,6 +15,17 @@ function removeCommaFromNum(num:string):number|string {
     }
     return convertedNum;
 }
+function parseAO3Chapter(chapterString:string): number {
+    let chapterInt = "";
+    for (let i = 0; i < chapterString.length; i++) {
+        if (chapterString[i]=='/') {
+            //console.log(`ParsedChapter: ${Number(chapterInt)}`);
+            return Number(chapterInt);
+        }
+        chapterInt+=chapterString[i];
+    }
+    return 0;
+}
 /** Calculates engagement into percentage rounded to 2 decimal place
  * 
  * @param {Number} hits - Number of hits
@@ -66,6 +77,7 @@ let numberUtils = {
     calculateEngagement,
     metricPerDay,
     findMaxOfGraphMetricProperty,
-    calculateHighestMetric
+    calculateHighestMetric,
+    parseAO3Chapter
 }
 export default numberUtils;

@@ -35,6 +35,11 @@ class CAnalytic {
     rootEle: null
   }
   constructor(snapshots:Snapshot[], metadata:Metadata, rootEle:HTMLDivElement) {
+    console.log("rootEle: ", rootEle);
+    console.log("metadata: ", metadata.title);
+    this.elements.rootEle = rootEle;
+    console.log("this.elements.rootEle: ", this.elements.rootEle);
+
     this.snapshots = snapshots;
     this.metadata = metadata;
     this.graphMetrics = this.getGraphMetric();
@@ -44,7 +49,7 @@ class CAnalytic {
     this.elements.hitChartCtx = this.createCanvas("hit");
     this.elements.commentChartCtx = this.createCanvas("comment");
     this.elements.bookmarkChartCtx = this.createCanvas("bookmark");
-    this.elements.rootEle = rootEle;
+
   }
   private createCanvas(key :string): HTMLCanvasElement {
     let graphDiv = document.createElement("div");
@@ -90,6 +95,8 @@ class CAnalytic {
         </div>
       </div>
     `;
+    console.log("IMPORTAT: ", this.elements.rootEle);
+
     this.elements.rootEle.appendChild(block);
   }
   private getHTMLElements() {
