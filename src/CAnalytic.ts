@@ -8,9 +8,6 @@ import annotationPlugin from 'chartjs-plugin-annotation';
 import { _adapters } from 'chart.js';
 Chart.register(annotationPlugin);
 
-let rootEle = document.getElementById("div_holding_multi_stats");
-
-
 class CAnalytic {
   snapshots: Snapshot[];
   metadata: Metadata;
@@ -34,9 +31,10 @@ class CAnalytic {
     bookmarkChart: null,
     bookmarkChartCtx: null,
     commentChart: null,
-    commentChartCtx: null
+    commentChartCtx: null,
+    rootEle: null
   }
-  constructor(snapshots:Snapshot[], metadata:Metadata) {
+  constructor(snapshots:Snapshot[], metadata:Metadata, rootEle:HTMLDivElement) {
     this.snapshots = snapshots;
     this.metadata = metadata;
     this.graphMetrics = this.getGraphMetric();
@@ -46,6 +44,7 @@ class CAnalytic {
     this.elements.hitChartCtx = this.createCanvas("hit");
     this.elements.commentChartCtx = this.createCanvas("comment");
     this.elements.bookmarkChartCtx = this.createCanvas("bookmark");
+    this.elements.rootEle = rootEle;
   }
   private createCanvas(key :string): HTMLCanvasElement {
     let graphDiv = document.createElement("div");
@@ -91,7 +90,7 @@ class CAnalytic {
         </div>
       </div>
     `;
-    rootEle.appendChild(block);
+    this.elements.rootEle.appendChild(block);
   }
   private getHTMLElements() {
     this.elements.titleHeader = document.getElementById(`work_title_${this.getId()}`);

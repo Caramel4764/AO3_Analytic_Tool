@@ -69,7 +69,7 @@ class Ao3WorkDom {
      * 
      * @returns {Int} - the number of chapters
      */
-    parseAO3Chapter(chapterString:string): number {
+    static parseAO3Chapter(chapterString:string): number {
         let chapterInt = "";
         for (let i = 0; i < chapterString.length; i++) {
             if (chapterString[i]=='/') {
@@ -101,7 +101,7 @@ class Ao3WorkDom {
         for (let i = 0; i < listOfDataLabel.length; i++) {
             listOfDataLabel[i].textContent = (listOfDataLabel[i].textContent).toLowerCase().replace(":", "");
             if (listOfDataLabel[i].textContent == "chapters") {
-                this.snapshot[listOfDataLabel[i].textContent] = this.parseAO3Chapter(listOfDataValue[i].textContent);
+                this.snapshot[listOfDataLabel[i].textContent] = Ao3WorkDom.parseAO3Chapter(listOfDataValue[i].textContent);
             } else {
                 this.snapshot[listOfDataLabel[i].textContent] = numberUtils.removeCommaFromNum(listOfDataValue[i].textContent);
             }
