@@ -109,4 +109,11 @@ export interface AnalyticElements {
     hitHighCount: HTMLParagraphElement | null,
     commentHighCount: HTMLParagraphElement | null,
     bookmarkHighCount: HTMLParagraphElement | null,
+    rootEle: HTMLDivElement | null;
+}
+
+export interface TrackWorkMsgData {
+    type: string,
+    HTMLString: string, 
+    url: string
 }

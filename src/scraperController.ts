@@ -8,15 +8,7 @@ import asyncUtil from "./utils/asyncUtil";
 import CAnalytic from "./CAnalytic";
 //import dateUtils from "./utils/dateUtils"
 let allCAnalytic = new Map<number, CAnalytic>();
-async function scrapeWebsite (link): Promise<boolean> {
-    //plan
-    //1. get id
-    //2. look up most recent snapshot date
-    //3. is current date past most recent snapshot date?
-        //4. Scrape if over most recent date
-        //5. Does metadata exist? Include if not
-        //6. Get snapshot
-
+async function scrapeWebsiteAndSave (link): Promise<boolean> {
     let workId = HTMLParserUtil.getIdFromLink(link);
     let latestSnapshot = await indexDB.getMostRecentSnapshotFromWork(workId);
     if (latestSnapshot) {
@@ -50,21 +42,23 @@ async function scrapeWebsite (link): Promise<boolean> {
     console.log("%c (Successful) Added Snapshot: ", "color: green;", newAo3WorkDom.getSnapshot());
     return true;
 }
-async function scrapeMultiWork(listOfWork: Metadata[]): Promise<void> {
+
+
+async function scrapeMultiWork(listOfWork: Metadata[], statDivHolder): Promise<void> {
     for (let i = 0; i < listOfWork.length; i++) {
         //scrape multiple work at once
         const batch = listOfWork.slice(i, i+config.scrapeBatchSize);
-        await Promise.allSettled(batch.map(work => scrapeAndUpdate(work.url)));
+        await Promise.allSettled(batch.map(work => scrapeAndUpdate(work.url, statDivHolder)));
         await asyncUtil.delay(config.scrapMSCD);
     }
 }
-async function scrapeAndUpdate(link) {
-    await scrapeWebsite(link);
+async function scrapeAndUpdate(link, statDivHolder) {
+    await scrapeWebsiteAndSave(link);
     let id = HTMLParserUtil.getIdFromLink(link);
-    await displaySnapshot(id);
+    await displaySnapshot(id, statDivHolder);
 }
 
-async function displaySnapshot(workId, index = -1): Promise<boolean> {
+async function displaySnapshot(workId, statDivHolder, index = -1): Promise<boolean> {
     let allSnapshots = await indexDB.getAllSnapshotsFromWork(workId);
     if (allSnapshots.length == 0) {
         throw new Error(`No snapshot found for given id (${workId})`);
@@ -85,23 +79,25 @@ async function displaySnapshot(workId, index = -1): Promise<boolean> {
         allCAnalytic.get(workId).update(allSnapshots, workMetadata);
         return true;
     } else {
-        const Analytic = new CAnalytic(allSnapshots, workMetadata);
+        //div
+        const Analytic = new CAnalytic(allSnapshots, workMetadata, statDivHolder);
         Analytic.draw();
         allCAnalytic.set(workId, Analytic);
         console.log("%c Graph doesn't exist so I'll create", "color: green;");
         return true;
     }
 }
-async function displayAllWork(listOfWork:Metadata[]) {
+async function displayAllWork(listOfWork:Metadata[], statDivHolder) {
     listOfWork.map(async(work)=>{
-        await displaySnapshot(work.workId);
+        await displaySnapshot(work.workId, statDivHolder);
     });
 }
 let scraperController = {
-    scrapeWebsite,
+    scrapeWebsiteAndSave,
     displaySnapshot,
     scrapeAndUpdate,
     scrapeMultiWork,
-    displayAllWork
+    displayAllWork,
+    
 }
 export default scraperController
