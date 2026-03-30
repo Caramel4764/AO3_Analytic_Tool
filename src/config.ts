@@ -1,5 +1,5 @@
 const config = {
-  isTesting: true,
+  isTesting: false,
   scrapMSCD: 3000,
   scrapeBatchSize: 2
 }

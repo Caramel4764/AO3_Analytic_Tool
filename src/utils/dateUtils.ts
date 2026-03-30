@@ -36,6 +36,9 @@ function convertMonthToText(monthNum:number): string {
             return "Dec";
     }
 }
+function normalizeDate(dateStr: string): string {
+    return new Date(dateStr).toISOString().split("T")[0]; // always "YYYY-MM-DD"
+}
 /** Turns timestamp into human readable (mm-dd-yyyy) using ISO
  * 
  * @param {Number} timestamp - Date.now
@@ -84,7 +87,8 @@ let dateUtils = {
     timeStampToReadable,
     hasMillisecondPassed,
     isNewDate,
-    isDaySkipped
+    isDaySkipped,
+    normalizeDate
 }
 
 export default dateUtils;
