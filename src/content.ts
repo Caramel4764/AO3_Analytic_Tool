@@ -1,9 +1,59 @@
 //add track to ao3 page
-import HTMLParserUtil from "./utils/HTMLParserUtil";
-import Ao3WorkDom from "./Ao3WorkDom";
-import numberUtils from "./utils/numberUtils";
-import dateUtils from "./utils/dateUtils";
-import type { Snapshot, Metadata, TrackWorkMsgData } from "./data/types";
+//import HTMLParserUtil from "./utils/HTMLParserUtil";
+//import Ao3WorkDom from "./Ao3WorkDom";
+//import numberUtils from "./utils/numberUtils";
+//import dateUtils from "./utils/dateUtils";
+//console.log('hu')
+// import HTMLParserUtil from "./utils/HTMLParserUtil.js";
+// import Ao3WorkDom from "./Ao3WorkDom.js";
+// import numberUtils from "./utils/numberUtils.js";
+// import dateUtils from "./utils/dateUtils.js";
+//import type { Snapshot, Metadata, TrackWorkMsgData } from "./data/types";
+function getIdFromLink(link:string):number {
+    const matchingUrlPart = link.match(/works\/(?<workId>\d+)/);
+    const id = matchingUrlPart ? Number(matchingUrlPart.groups.workId): null;
+    return id;
+}
+const HTMLParserUtil = {
+    getIdFromLink
+}
+function removeCommaFromNum(num:string):number|string {
+    if (!num) {
+        return null;
+    }
+    let convertedNum = Number(num.replace(/,/g, ""));
+    if (!convertedNum && isNaN(convertedNum)) {
+        return num;
+    }
+    return convertedNum;
+}
+function parseAO3Chapter(chapterString:string): number {
+    let chapterInt = "";
+    for (let i = 0; i < chapterString.length; i++) {
+        if (chapterString[i]=='/') {
+            //console.log(`ParsedChapter: ${Number(chapterInt)}`);
+            return Number(chapterInt);
+        }
+        chapterInt+=chapterString[i];
+    }
+    return 0;
+}
+let numberUtils = {
+    removeCommaFromNum,
+    parseAO3Chapter
+}
+function timeStampToReadable(timestamp:number):string {
+    const date = new Date(timestamp);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+}
+let dateUtils = {
+  timeStampToReadable,
+}
+
+
 const Ao3WorkNavAction = document.querySelector(".work.navigation.actions");
 
 
@@ -14,7 +64,7 @@ if (Ao3WorkNavAction) {
   trackBtn.querySelector('a').addEventListener('click', async(e)=>{
     e.preventDefault();
 
-    let metadata:Metadata = {
+    let metadata = {
       workId: 0,
       timeStamp: 0,
       timeStampReadable: "",
@@ -23,7 +73,7 @@ if (Ao3WorkNavAction) {
       url: "",
       published: ""
     };
-    let snapshot:Snapshot = {
+    let snapshot = {
       bookmarks: 0,
       chapters: 0,
       comments: 0,
@@ -48,7 +98,7 @@ if (Ao3WorkNavAction) {
     for (let i = 0; i < listOfDataLabel.length; i++) {
         listOfDataLabel[i].textContent = (listOfDataLabel[i].textContent).toLowerCase().replace(":", "");
         if (listOfDataLabel[i].textContent == "chapters") {
-            snapshot[listOfDataLabel[i].textContent] = Ao3WorkDom.parseAO3Chapter(listOfDataValue[i].textContent);
+            snapshot[listOfDataLabel[i].textContent] = numberUtils.parseAO3Chapter(listOfDataValue[i].textContent);
         } else {
             snapshot[listOfDataLabel[i].textContent] = numberUtils.removeCommaFromNum(listOfDataValue[i].textContent);
         }

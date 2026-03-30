@@ -88,6 +88,8 @@ async function displaySnapshot(workId, statDivHolder, index = -1): Promise<boole
     }
 }
 async function displayAllWork(listOfWork:Metadata[], statDivHolder) {
+        console.log("allMetadata: ", listOfWork);
+
     listOfWork.map(async(work)=>{
         await displaySnapshot(work.workId, statDivHolder);
     });
