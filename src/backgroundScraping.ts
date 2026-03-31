@@ -1,17 +1,14 @@
 import scraperController from "./scraperController";
-import indexDB from "./indexDB";
-import HTMLParserUtil from "./utils/HTMLParserUtil";
-import Ao3WorkDom from "./Ao3WorkDom";
-import numberUtils from "./utils/numberUtils";
-import dateUtils from "./utils/dateUtils";
 import type { Snapshot, Metadata, TrackWorkMsgData } from "./data/types";
 chrome.runtime.sendMessage({ type: "HIDDEN_DOM_LOADED" });
 
 chrome.runtime.onMessage.addListener((message) => {
-  if (message.type === "START_SCRAPE")  {
+  //schedules daily scraping
+  if (message.type === "START_DAILY_SCRAPE")  {
     let workToUpdate = message.works;
     Promise.allSettled(
       workToUpdate.map((currWork:Metadata)=> {
+        console.log("Fetching URL:", currWork.url);
         return fetch(currWork.url)
           .then((response) => {
             return response.text()})

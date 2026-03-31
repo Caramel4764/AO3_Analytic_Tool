@@ -158,6 +158,40 @@ async function doesSnapshotDateExist(snapshot: Snapshot): Promise<boolean> {
         return false;
     }
 }
+async function removeSingleSnapshotByDate(metadata:Metadata, timeStamp:string): Promise<Snapshot> {
+    let allSnapshots = await getAllSnapshotsFromWork(metadata.workId);
+    let wantedISO = new Date(timeStamp).toISOString().slice(0, 10);
+    for (let i = 0; i<allSnapshots.length; i++) {
+        let currSnap = allSnapshots[i];
+        let currISODate = new Date(currSnap.timeStamp).toISOString().slice(0, 10);
+        if (currISODate == wantedISO) {
+            console.log("currISODate:", currISODate);
+            console.log("wantedISO:", wantedISO);
+            console.log("timeStamp: ", timeStamp);
+            let snapshotRef = await getSnapshot(currSnap.snapshotId);
+            removeSnapshot(currSnap.snapshotId);
+            return snapshotRef;
+        }
+    }
+    throw new Error(`No snapshot found for date(${wantedISO}) on ${metadata.title}`);
+}
+async function removeAllSnapshotsByDate(timeStamp): Promise<Snapshot[]> {
+    console.log("trying to remove");
+    let allWorks = await getAllWork();
+    let results = await Promise.allSettled(
+        allWorks.map(async (work) => {
+            return await removeSingleSnapshotByDate(work, timeStamp);
+        })
+    )
+    let deleted: Snapshot[] = results.filter((res)=> {
+        return res.status === "fulfilled";
+    }).map((res) => {
+        return res.value;
+    });
+    console.log("finished");
+
+    return deleted;
+}
 //if multiple timestamp have the same date, only the first will be kept
 async function cleanSameDaySnapshot(): Promise<void> {
     let allSnapshots = await getAllSnapshots();
@@ -259,7 +293,8 @@ let indexDB = {
     isDBByWorkEmpty,
     getMostRecentSnapshotFromWork,
     importSnapshots,
-    importMetadatas
+    importMetadatas,
+    removeAllSnapshotsByDate
 }
 
 export default indexDB;
