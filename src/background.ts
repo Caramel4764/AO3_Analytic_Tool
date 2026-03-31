@@ -27,17 +27,20 @@ async function handleTrackWork(metadata:Metadata, snapshot:Snapshot) {
   await displayController.addSnapshotMetadata(metadata, snapshot);
 }
 
-chrome.runtime.onMessage.addListener(async(message, sender, sendResponse) => {
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.type === "TRACK_WORK") {
-    await handleTrackWork(message.metadata, message.snapshot);
+    handleTrackWork(message.metadata, message.snapshot).then(()=>{
+    });
   }
   if (message.type === "HIDDEN_DOM_LOADED") {
-    let allMetadata = await indexDB.getAllWork();
-    console.log("BG METADATA: ", allMetadata);
+    indexDB.getAllWork().then((allMetadata)=> {
+      console.log("BG METADATA: ", allMetadata);
       chrome.runtime.sendMessage({
         type: "START_SCRAPE",
         works: allMetadata
+      });
     });
+    
   }
   if (message.type === "FINISHED_SCRAPE") {
     chrome.offscreen.closeDocument();

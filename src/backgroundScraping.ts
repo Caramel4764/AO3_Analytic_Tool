@@ -7,19 +7,21 @@ import dateUtils from "./utils/dateUtils";
 import type { Snapshot, Metadata, TrackWorkMsgData } from "./data/types";
 chrome.runtime.sendMessage({ type: "HIDDEN_DOM_LOADED" });
 
-chrome.runtime.onMessage.addListener(async(message) => {
-  if (message.type === "START_SCRAPE") {
+chrome.runtime.onMessage.addListener((message) => {
+  if (message.type === "START_SCRAPE")  {
     let workToUpdate = message.works;
-      const errorMsg = await Promise.allSettled(
-        workToUpdate.map(async(currWork:Metadata)=> {
-          let response = await fetch(currWork.url);
-          let html = await response.text();
-
-          const doc = new DOMParser().parseFromString(html, "text/html");
-          await scraperController.scrapeDOMAndSave(doc, currWork.url);
-        })
-      );
-
+    Promise.allSettled(
+      workToUpdate.map((currWork:Metadata)=> {
+        return fetch(currWork.url)
+          .then((response) => {
+            return response.text()})
+          .then((html)=>{
+            const doc = new DOMParser().parseFromString(html, "text/html");
+            return scraperController.scrapeDOMAndSave(doc, currWork.url).then(()=>{
+          })
+        });
+      })
+    ).then((errorMsg)=>{
       errorMsg.forEach((result, i) => {
         if (result.status === "rejected") {
           console.warn(`❌ Failed to scrape ${message.works[i].title}:`, result.reason);
@@ -27,9 +29,16 @@ chrome.runtime.onMessage.addListener(async(message) => {
           console.log(`✅ Scraped ${message.works[i].title}`);
         }
       });
+        console.log("Scheduled Scraping Finished");
+        chrome.runtime.sendMessage({
+          type: "FINISHED_SCRAPE",
+        })
+
+    }).catch((err) => {
+      console.warn("Scraping Error:", err);
+      chrome.runtime.sendMessage({
+        type: "FINISHED_SCRAPE",
+      })
+    });
   }
-  console.log("Scheduled Scraping Finished");
-  chrome.runtime.sendMessage({
-    type: "FINISHED_SCRAPE",
-  })
 });
