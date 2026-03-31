@@ -10,7 +10,8 @@ export default defineConfig({
     
     rollupOptions: {
       input: {
-        //root dir
+        backgroundScraping: "src/backgroundScraping.ts",
+        hiddenDom: "hiddenDom.html",
         background: "src/background.ts",
         dashboard: "dashboard.html",
         popup: "popup.html",

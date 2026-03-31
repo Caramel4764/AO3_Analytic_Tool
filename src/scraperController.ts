@@ -43,6 +43,40 @@ async function scrapeWebsiteAndSave (link): Promise<boolean> {
     return true;
 }
 
+async function scrapeDOMAndSave (HTMLDom:HTMLDocument, link:string): Promise<boolean> {
+    let workId = HTMLParserUtil.getIdFromLink(link);
+    let latestSnapshot = await indexDB.getMostRecentSnapshotFromWork(workId);
+    if (latestSnapshot) {
+        const lastScrapeTime = latestSnapshot.timeStamp;
+        const currTime = new Date();
+        const lastScrapeTimeReadable = dateUtils.timeStampToReadable(lastScrapeTime);
+        const currTimeReadable = dateUtils.timeStampToReadable(currTime.getTime());
+        
+        if (lastScrapeTimeReadable == currTimeReadable) {
+            throw new Error(`(${workId}) A day hasn't passed. Wait until midnight before updating...`);
+        }
+    }
+    //fetch information
+    let HTMLString = await HTMLParserUtil.fetchHTML(link)
+    HTMLDom = HTMLParserUtil.stringHTMLToDom(HTMLString);
+    let newAo3WorkDom = new Ao3WorkDom(HTMLDom, link);
+    //store info
+    let allSnapshots = await indexDB.getAllSnapshots();
+    let currSnap = newAo3WorkDom.getSnapshot()
+    let doesWorkExistAlr = await indexDB.doesWorkExist(newAo3WorkDom.getWorkId());
+    //indexDB.cleanSameDaySnapshot();
+    //if work doesn't exist, add
+    if (!doesWorkExistAlr) {
+        //issue here
+        indexDB.addWork(newAo3WorkDom.getMetadata());
+        console.log("%c Work successfully added: ", "color: green;", newAo3WorkDom.getMetadata)
+    } else {
+        console.log("%c Work already exists: ", "color: red;",newAo3WorkDom.getMetadata);
+    }
+    await indexDB.addSnapshot(currSnap);
+    console.log("%c (Successful) Added Snapshot: ", "color: green;", newAo3WorkDom.getSnapshot());
+    return true;
+}
 
 async function scrapeMultiWork(listOfWork: Metadata[], statDivHolder): Promise<void> {
     for (let i = 0; i < listOfWork.length; i++) {
@@ -100,6 +134,7 @@ let scraperController = {
     scrapeAndUpdate,
     scrapeMultiWork,
     displayAllWork,
+    scrapeDOMAndSave
     
 }
 export default scraperController
