@@ -3,7 +3,6 @@
 //import Ao3WorkDom from "./Ao3WorkDom";
 //import numberUtils from "./utils/numberUtils";
 //import dateUtils from "./utils/dateUtils";
-//console.log('hu')
 // import HTMLParserUtil from "./utils/HTMLParserUtil.js";
 // import Ao3WorkDom from "./Ao3WorkDom.js";
 // import numberUtils from "./utils/numberUtils.js";
@@ -55,7 +54,6 @@ let dateUtils = {
 
 
 const Ao3WorkNavAction = document.querySelector(".work.navigation.actions");
-
 
 if (Ao3WorkNavAction) {
   let trackBtn = document.createElement('li');

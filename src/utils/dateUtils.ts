@@ -83,12 +83,18 @@ function isDaySkipped(prevTime: number, currTime: number): boolean {
 ;
   return diffDays >= 2;
 }
+function getNextMidnight() {
+    let currDate = new Date();
+    currDate.setHours(24, 0, 0, 0);
+    return currDate.getTime();
+}
 let dateUtils = {
     timeStampToReadable,
     hasMillisecondPassed,
     isNewDate,
     isDaySkipped,
-    normalizeDate
+    normalizeDate,
+    getNextMidnight
 }
 
 export default dateUtils;

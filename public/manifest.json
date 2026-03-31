@@ -6,7 +6,7 @@
   "action": {
     "default_popup": "popup.html"
   },
-  "permissions": ["storage", "alarms", "scripting", "tabs"],
+  "permissions": ["storage", "alarms", "scripting", "tabs", "offscreen"],
 
   "content_scripts": [
     {
