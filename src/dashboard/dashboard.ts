@@ -1,6 +1,6 @@
 //import HTMLParserUtil from "./utils/HTMLParserUtil";
 //import Ao3WorkDom from "./Ao3WorkDom";
-import { snapshot } from "node:test";
+import type{ Snapshot } from "../data/types";
 import indexDB from "../indexDB";
 import scraperController from "../scraperController";
 let rootEle = document.getElementById("div_holding_multi_stats");
