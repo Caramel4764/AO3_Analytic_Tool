@@ -7,7 +7,7 @@
  * 
  * @returns {Promise<string>} - A promise that returns the HTML in string
  */
-async function fetchHTML(weblink:string):Promise<string> {
+async function fetchHTMLServer(weblink:string):Promise<string> {
     let weblinkNoWarning = weblink+"?view_adult=true";
     //?view_adult=true prevents warning page
     const res = await fetch(`http://localhost:3000/proxy?url=${encodeURIComponent(weblinkNoWarning)}`);
@@ -18,6 +18,16 @@ async function fetchHTML(weblink:string):Promise<string> {
     console.log(`HasStats: ${html.includes("stats")}`);
     console.log(`HasKudos: ${html.includes("kudos")}`);
     console.log(`HTMLContentLength: ${html.length}`);
+    return html;
+}
+
+async function fetchHTML(weblink:string):Promise<string> {
+    let weblinkNoWarning = weblink+"?view_adult=true";
+    const res = await fetch(weblinkNoWarning); // ← direct fetch, no proxy
+    if (!res.ok) {
+        throw new Error(`HTTP error: website not extracted. Error code ${res.status}`);
+    }
+    const html = await res.text();
     return html;
 }
 /** Return a mini dom parsed from HTMLString
@@ -39,6 +49,6 @@ function getIdFromLink(link:string):number {
 const HTMLParserUtil = {
     fetchHTML,
     stringHTMLToDom,
-    getIdFromLink
+    getIdFromLink,
 }
 export default HTMLParserUtil;

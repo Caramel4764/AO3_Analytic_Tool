@@ -7,7 +7,9 @@
     "default_popup": "popup.html"
   },
   "permissions": ["storage", "alarms", "scripting", "tabs", "offscreen"],
-
+  "host_permissions": [
+    "https://archiveofourown.org/*"
+  ],
   "content_scripts": [
     {
       "matches": ["https://archiveofourown.org/*"],

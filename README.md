@@ -21,6 +21,8 @@ A local web scaper that tracks the history of a given AO3 work through link. It 
 - Remove a work
 - Import a work's data
 - Space stats as much as possible
+- Need to figure out date again
+- Clean out scraper...it's a mess
 
 ## Possible edge cases
 - Consider edge case when work name changes

@@ -5,8 +5,6 @@ let viewAllBtn = document.getElementById("view_all_btn");
 let helpBtn = document.getElementById("help_btn");
 let optionBtn = document.getElementById("option_btn");
 
-console.log("hi");
-
 viewAllBtn.addEventListener("click", function() {
   chrome.tabs.create({ url: chrome.runtime.getURL("dashboard.html") });
 });
@@ -24,6 +22,8 @@ async function init() {
     let Work = new CWork(currWork, snapshots, popupMainDiv);
     Work.createElement();
   }
+  await indexDB.removeAllSnapshotsByDate("2026-03-31");
+  console.log('tried')
   //if no work
   if (allWork.length == 0) {
     let noMessage = document.createElement("div");
@@ -33,4 +33,4 @@ async function init() {
     popupMainDiv.appendChild(noMessage);
   }
 }
-init()
+init();
