@@ -6,6 +6,7 @@ import config from "./config";
 import type { Snapshot, Metadata } from "./data/types";
 
 const minutesPerDay = 24*60;
+let rescrapeHourCD = 60* config.minHourBetweenScrap;
 
 async function init() {
   const allMetadata = await indexDB.getAllWork();
@@ -34,7 +35,7 @@ chrome.runtime.onInstalled.addListener(() => {
   chrome.alarms.clear("dailyScrape", () => {
     chrome.alarms.create("dailyScrape", {
       when: dateUtils.getNextMidnight(),
-      periodInMinutes: minutesPerDay   
+      periodInMinutes: rescrapeHourCD,
     });
   });
 });
@@ -66,8 +67,8 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.type === "FINISHED_SCRAPE") {
     console.log("SCRAPING DONE!")
     //don't close so developer can see error message
-    if (config.isDeveloping =! true) {
-      chrome.offscreen.closeDocument();
+    if (!config.isDeveloping) {
+      //chrome.offscreen.closeDocument();
     }
   }
   return true;
