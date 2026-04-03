@@ -51,8 +51,7 @@ chrome.alarms.onAlarm.addListener((message)=>{
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   // to track a work on offical ao3
   if (message.type === "TRACK_WORK") {
-    handleTrackWork(message.metadata, message.snapshot).then(()=>{
-    });
+    handleTrackWork(message.metadata, message.snapshot).then(()=>{});
     return true
   }
   //background dom has finished loaded

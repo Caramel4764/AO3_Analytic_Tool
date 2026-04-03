@@ -1,9 +1,9 @@
-import type{ AnalyticElements, ChartConfigParam, Snapshot, Metadata, GraphMetric, GraphData } from "./data/types";
-import dateUtils from "./utils/dateUtils";
+import type{ AnalyticElements, ChartConfigParam, Snapshot, Metadata, GraphMetric, GraphData } from "../data/types";
+import dateUtils from "../utils/dateUtils";
 import Chart from 'chart.js/auto';
 import 'chartjs-adapter-luxon';
-import numberUtils from "./utils/numberUtils";
-import stringUtils from "./utils/stringUtils";
+import numberUtils from "../utils/numberUtils";
+import stringUtils from "../utils/stringUtils";
 import annotationPlugin from 'chartjs-plugin-annotation';
 import { _adapters } from 'chart.js';
 Chart.register(annotationPlugin);

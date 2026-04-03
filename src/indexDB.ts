@@ -266,8 +266,6 @@ async function doesWorkExist(workId:number):Promise<boolean> {
             return true;
         }
     }
-    console.log("false: ")
-
     return false;
 }
 //remove work and associated snapshots
