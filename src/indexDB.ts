@@ -47,8 +47,11 @@ async function getStore(storeName:string): Promise<IDBObjectStore> {
 async function addSnapshot(snapshot:Snapshot): Promise<Snapshot> {
     let snapshotStore = await getStore("snapshots");
     let request = snapshotStore.put(snapshot);
-    return promiseRequest(request, "Successful added snapshot", "Could not add snapshot");
+    await promiseRequest(request, "Successful added snapshot", "Could not add snapshot");
+    console.log("%c (Successful) Added Snapshot: ", "color: green;", snapshot);
+    return snapshot;
 }
+
 async function isDBEmpty():Promise<boolean> {
     let allSnap = await getAllSnapshots();
     if (allSnap.length==0) {

@@ -1,10 +1,8 @@
-//will handle alarms, scheduling, etc
+//Serves as the centeral brain. Does stuff like handle alarms, scheduling, etc.
 import indexDB from "./indexDB";
-//import displayController from "./displayController";
 import scraperController from "./scraperController";
 import dateUtils from "./utils/dateUtils";
 import config from "./config";
-//import scraperController from "./scraperController";
 import type { Snapshot, Metadata } from "./data/types";
 
 const minutesPerDay = 24*60;
