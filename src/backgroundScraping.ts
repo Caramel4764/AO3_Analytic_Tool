@@ -37,5 +37,6 @@ chrome.runtime.onMessage.addListener((message) => {
         type: "FINISHED_SCRAPE",
       })
     });
+    return true;
   }
 });

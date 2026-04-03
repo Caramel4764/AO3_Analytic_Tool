@@ -1,5 +1,7 @@
-//import workMetadata from "../data/workMetadata";
-//import workSnapshot from "../data/workSnapshot";
+/*
+Parses html
+*/
+
 
 /** Fetches HTML as string from url
  * 
