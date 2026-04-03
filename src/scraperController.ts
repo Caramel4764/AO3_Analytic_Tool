@@ -1,50 +1,51 @@
+/*
+Handles scraping and generation of HTML data right after scraping
+*/
+
 import HTMLParserUtil from "./utils/HTMLParserUtil";
 import Ao3WorkDom from "./Ao3WorkDom";
 import indexDB from "./indexDB";
 import dateUtils from "./utils/dateUtils";
 import type { Snapshot, Metadata } from "./data/types";
-import config from "./config";
-import asyncUtil from "./utils/asyncUtil";
-import CAnalytic from "./CAnalytic";
-//import dateUtils from "./utils/dateUtils"
-let allCAnalytic = new Map<number, CAnalytic>();
+import frontend from "./frontend";
+
+/** Scrapes a website by link
+ * 
+ * @param link - Link of work to scrape
+ * @returns {Boolean} - Is successful?
+ */
 async function scrapeWebsiteAndSave (link): Promise<boolean> {
     let workId = HTMLParserUtil.getIdFromLink(link);
-    let latestSnapshot = await indexDB.getMostRecentSnapshotFromWork(workId);
-    if (latestSnapshot) {
-        const lastScrapeTime = latestSnapshot.timeStamp;
-        const currTime = new Date();
-        const lastScrapeTimeReadable = dateUtils.timeStampToReadable(lastScrapeTime);
-        const currTimeReadable = dateUtils.timeStampToReadable(currTime.getTime());
-        
-        if (lastScrapeTimeReadable == currTimeReadable) {
-            throw new Error(`(${workId}) A day hasn't passed. Wait until midnight before updating...`);
-        }
-    }
+    if (await isScrapeOnCD(workId)) return false;
     //fetch information
     let HTMLString = await HTMLParserUtil.fetchHTML(link)
     let HTMLDom = HTMLParserUtil.stringHTMLToDom(HTMLString);
     let newAo3WorkDom = new Ao3WorkDom(HTMLDom, link);
     //store info
-    let allSnapshots = await indexDB.getAllSnapshots();
     let currSnap = newAo3WorkDom.getSnapshot()
-    let doesWorkExistAlr = await indexDB.doesWorkExist(newAo3WorkDom.getWorkId());
-    //indexDB.cleanSameDaySnapshot();
-    //if work doesn't exist, add
-    if (!doesWorkExistAlr) {
-        //issue here
-        indexDB.addWork(newAo3WorkDom.getMetadata());
-        console.log("%c Work successfully added: ", "color: green;", newAo3WorkDom.getMetadata)
-    } else {
-        console.log("%c Work already exists: ", "color: red;",newAo3WorkDom.getMetadata);
-    }
+    await addNewWork(newAo3WorkDom.metadata);
     await indexDB.addSnapshot(currSnap);
-    console.log("%c (Successful) Added Snapshot: ", "color: green;", newAo3WorkDom.getSnapshot());
     return true;
 }
-
-async function scrapeDOMAndSave (HTMLDom:HTMLDocument, link:string): Promise<boolean> {
-    let workId = HTMLParserUtil.getIdFromLink(link);
+/** Safely add a work. If unique, it adds it to the DB. If it already exist, it won't be added. Both send an console.log message
+ * 
+ * @param workID - Id of work to add
+ * @param metadata - The metadata to add
+ * @return {Boolean} - Was the work added to the DB?
+ */
+async function addNewWork(metadata:Metadata): Promise<Boolean> {
+    let doesWorkExistAlr = await indexDB.doesWorkExist(metadata.workId);
+    //indexDB.cleanSameDaySnapshot();
+    if (!doesWorkExistAlr) {
+        indexDB.addWork(metadata);
+        console.log("%c Work successfully added: ", "color: green;", metadata);
+        return true;
+    } else {
+        console.log("%c Work already exists: ", "color: red;",metadata);
+        return false;
+    }
+}
+async function isScrapeOnCD(workId: number): Promise<Boolean> {
     let latestSnapshot = await indexDB.getMostRecentSnapshotFromWork(workId);
     if (latestSnapshot) {
         const lastScrapeTime = latestSnapshot.timeStamp;
@@ -53,120 +54,62 @@ async function scrapeDOMAndSave (HTMLDom:HTMLDocument, link:string): Promise<boo
         const currTimeReadable = dateUtils.timeStampToReadable(currTime.getTime());
         
         if (lastScrapeTimeReadable == currTimeReadable) {
-            throw new Error(`(${workId}) A day hasn't passed. Wait until midnight before updating...`);
+            console.warn(`(${workId}) A day hasn't passed. Wait until midnight before updating...`);
+            return false
+            //throw new Error(`(${workId}) A day hasn't passed. Wait until midnight before updating...`);
         }
+    }
+    return true;
+}
+/** Scrapes the dom and saves it the db
+ * 
+ * @param {Number} HTMLDom - The html dom
+ * @param {string} link - The link of the web
+ * 
+ * @returns {Boolean} - Is scraping a success
+ */
+async function scrapeDOMAndSave (HTMLDom:HTMLDocument, link:string): Promise<boolean> {
+    let workId = HTMLParserUtil.getIdFromLink(link);
+    if (await isScrapeOnCD(workId)) {
+        return false;
     }
     //fetch information
     let HTMLString = await HTMLParserUtil.fetchHTML(link)
     HTMLDom = HTMLParserUtil.stringHTMLToDom(HTMLString);
     let newAo3WorkDom = new Ao3WorkDom(HTMLDom, link);
     //store info
-    let allSnapshots = await indexDB.getAllSnapshots();
-    let currSnap = newAo3WorkDom.getSnapshot()
-    let doesWorkExistAlr = await indexDB.doesWorkExist(newAo3WorkDom.getWorkId());
-    //indexDB.cleanSameDaySnapshot();
-    //if work doesn't exist, add
-    if (!doesWorkExistAlr) {
-        //issue here
-        indexDB.addWork(newAo3WorkDom.getMetadata());
-        console.log("%c Work successfully added: ", "color: green;", newAo3WorkDom.getMetadata)
-    } else {
-        console.log("%c Work already exists: ", "color: red;",newAo3WorkDom.getMetadata);
-    }
+    let currSnap = newAo3WorkDom.getSnapshot();
+    await addNewWork(newAo3WorkDom.metadata);
     await indexDB.addSnapshot(currSnap);
-    console.log("%c (Successful) Added Snapshot: ", "color: green;", newAo3WorkDom.getSnapshot());
     return true;
 }
 
-async function scrapeMultiWork(listOfWork: Metadata[], statDivHolder): Promise<void> {
-    for (let i = 0; i < listOfWork.length; i++) {
-        //scrape multiple work at once
-        const batch = listOfWork.slice(i, i+config.scrapeBatchSize);
-        await Promise.allSettled(batch.map(work => scrapeAndUpdate(work.url, statDivHolder)));
-        await asyncUtil.delay(config.scrapMSCD);
-    }
-}
+/** Scrapes a website and update the HTML right away
+ * 
+ * @param link - link of the website to scrape
+ * @param statDivHolder - div to store the generate HTML
+ */
 async function scrapeAndUpdate(link, statDivHolder) {
     await scrapeWebsiteAndSave(link);
-    let id = HTMLParserUtil.getIdFromLink(link);
-    await displaySnapshot(id, statDivHolder);
+    let workId = HTMLParserUtil.getIdFromLink(link);
+    await frontend.generateHTMLStatsFromWork(workId, statDivHolder);
 }
 
-async function displaySnapshot(workId, statDivHolder, index = -1): Promise<boolean> {
-    let allSnapshots = await indexDB.getAllSnapshotsFromWork(workId);
-    if (allSnapshots.length == 0) {
-        throw new Error(`No snapshot found for given id (${workId})`);
-    }
-    let snapshotIndex;
-    // if -1, find latest
-    if (index == -1) {
-        snapshotIndex = allSnapshots.length-1;
-    }
-    if (!allSnapshots) {
-        return false;
-    }
-    let workMetadata = await indexDB.findWork(allSnapshots[snapshotIndex].workId);
-    console.log('%c Snapshots: ', 'color: pink;', allSnapshots);
-    console.log("%c Metadata: ", 'color: pink;', workMetadata);
-    if (allCAnalytic.has(workId)) {
-        console.log("%c Graph already exist so I'll update", "color: red;");
-        allCAnalytic.get(workId).update(allSnapshots, workMetadata);
-        return true;
-    } else {
-        //div
-        const Analytic = new CAnalytic(allSnapshots, workMetadata, statDivHolder);
-        Analytic.mount();
-        Analytic.draw();
-        allCAnalytic.set(workId, Analytic);
-        console.log("%c Graph doesn't exist so I'll create", "color: green;");
-        return true;
-    }
-}
-async function displayAllWork(listOfWork:Metadata[], statDivHolder) {
-        console.log("allMetadata: ", listOfWork);
-
-    listOfWork.map(async(work)=>{
-        await displaySnapshot(work.workId, statDivHolder);
-    });
-}
-
-async function handleScrapedData(metadata: Metadata, snapshot: Snapshot) {
-    console.log('InsideSnapMeta');
-  let latestSnapshot = await indexDB.getMostRecentSnapshotFromWork(metadata.workId);
-  let allSnapshots = await indexDB.getAllSnapshotsFromWork(metadata.workId);
-  console.log("ALL SNAP TEST: ", allSnapshots);
-  if (latestSnapshot) {
-      const lastScrapeTime = latestSnapshot.timeStamp;
-      const currTime = new Date();
-      const lastScrapeTimeReadable = dateUtils.timeStampToReadable(lastScrapeTime);
-      const currTimeReadable = dateUtils.timeStampToReadable(currTime.getTime());
-      if (lastScrapeTimeReadable == currTimeReadable) {
-          throw new Error(`(${metadata.workId}) A day hasn't passed. Wait until midnight before updating...`);
-      }
-  }
-  //store info
-  let currSnap = snapshot;
-  let doesWorkExistAlr = await indexDB.doesWorkExist(metadata.workId);
-  //indexDB.cleanSameDaySnapshot();
-  //if work doesn't exist, add
-  if (!doesWorkExistAlr) {
-      //issue here
-      indexDB.addWork(metadata);
-      console.log("%c Work successfully added: ", "color: green;", metadata)
-  } else {
-      console.log("%c Work already exists: ", "color: red;",metadata);
-  }
-  await indexDB.addSnapshot(currSnap);
-  console.log("%c (Successful) Added Snapshot: ", "color: green;", snapshot);
+/** Stores metadata and snapshot into DB (Assumed data gotten from scraping)
+ * 
+ * @param metadata - Metadata to add
+ * @param snapshot - Snapshot to add
+ * @returns {Boolean} - Was it successful
+ */
+async function handleScrapedData(metadata: Metadata, snapshot: Snapshot): Promise<Boolean> {
+  if (await isScrapeOnCD(metadata.workId)) return false;
+  await addNewWork(metadata);
+  await indexDB.addSnapshot(snapshot);
   return true;
 }
 
 let scraperController = {
-    scrapeWebsiteAndSave,
-    displaySnapshot,
     scrapeAndUpdate,
-    scrapeMultiWork,
-    displayAllWork,
     scrapeDOMAndSave,
     handleScrapedData
 }
