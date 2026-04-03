@@ -1,8 +1,10 @@
 //will handle alarms, scheduling, etc
 import indexDB from "./indexDB";
-import displayController from "./displayController";
+//import displayController from "./displayController";
+import scraperController from "./scraperController";
 import dateUtils from "./utils/dateUtils";
 import config from "./config";
+//import scraperController from "./scraperController";
 import type { Snapshot, Metadata } from "./data/types";
 
 const minutesPerDay = 24*60;
@@ -26,7 +28,7 @@ async function openBackgroundDOM() {
   }
 }
 async function handleTrackWork(metadata:Metadata, snapshot:Snapshot) {
-  await displayController.addSnapshotMetadata(metadata, snapshot);
+  await scraperController.handleScrapedData(metadata, snapshot);
 }
 
 //handling alarm
@@ -53,6 +55,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.type === "TRACK_WORK") {
     handleTrackWork(message.metadata, message.snapshot).then(()=>{
     });
+    return true
   }
   //background dom has finished loaded
   if (message.type === "HIDDEN_DOM_LOADED") {
@@ -62,6 +65,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         works: allMetadata
       });
     });
+    return true
   }
   //schedule scraping complete
   if (message.type === "FINISHED_SCRAPE") {

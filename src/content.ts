@@ -1,13 +1,3 @@
-//add track to ao3 page
-//import HTMLParserUtil from "./utils/HTMLParserUtil";
-//import Ao3WorkDom from "./Ao3WorkDom";
-//import numberUtils from "./utils/numberUtils";
-//import dateUtils from "./utils/dateUtils";
-// import HTMLParserUtil from "./utils/HTMLParserUtil.js";
-// import Ao3WorkDom from "./Ao3WorkDom.js";
-// import numberUtils from "./utils/numberUtils.js";
-// import dateUtils from "./utils/dateUtils.js";
-//import type { Snapshot, Metadata, TrackWorkMsgData } from "./data/types";
 function getIdFromLink(link:string):number {
     const matchingUrlPart = link.match(/works\/(?<workId>\d+)/);
     const id = matchingUrlPart ? Number(matchingUrlPart.groups.workId): null;
@@ -85,7 +75,8 @@ if (Ao3WorkNavAction) {
     console.log("LINK:", window.location.href)
     metadata.url = window.location.href;
     metadata.workId = HTMLParserUtil.getIdFromLink(metadata.url);
-    metadata.published = document.querySelector("dl.stats dd.status").textContent;
+    metadata.published = document.querySelector("dl.stats dd.status")?.textContent 
+    ?? document.querySelector("dl.stats dd.published")?.textContent;
     metadata.author = document.querySelector("div.preface.group h3.byline.heading").textContent.trim();
     metadata.title = document.querySelector("div.preface.group h2.title.heading").textContent.trim();
     metadata.timeStamp = Date.now();

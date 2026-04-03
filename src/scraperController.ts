@@ -2,7 +2,7 @@ import HTMLParserUtil from "./utils/HTMLParserUtil";
 import Ao3WorkDom from "./Ao3WorkDom";
 import indexDB from "./indexDB";
 import dateUtils from "./utils/dateUtils";
-import type { Metadata } from "./data/types";
+import type { Snapshot, Metadata } from "./data/types";
 import config from "./config";
 import asyncUtil from "./utils/asyncUtil";
 import CAnalytic from "./CAnalytic";
@@ -115,6 +115,7 @@ async function displaySnapshot(workId, statDivHolder, index = -1): Promise<boole
     } else {
         //div
         const Analytic = new CAnalytic(allSnapshots, workMetadata, statDivHolder);
+        Analytic.mount();
         Analytic.draw();
         allCAnalytic.set(workId, Analytic);
         console.log("%c Graph doesn't exist so I'll create", "color: green;");
@@ -128,13 +129,45 @@ async function displayAllWork(listOfWork:Metadata[], statDivHolder) {
         await displaySnapshot(work.workId, statDivHolder);
     });
 }
+
+async function handleScrapedData(metadata: Metadata, snapshot: Snapshot) {
+    console.log('InsideSnapMeta');
+  let latestSnapshot = await indexDB.getMostRecentSnapshotFromWork(metadata.workId);
+  let allSnapshots = await indexDB.getAllSnapshotsFromWork(metadata.workId);
+  console.log("ALL SNAP TEST: ", allSnapshots);
+  if (latestSnapshot) {
+      const lastScrapeTime = latestSnapshot.timeStamp;
+      const currTime = new Date();
+      const lastScrapeTimeReadable = dateUtils.timeStampToReadable(lastScrapeTime);
+      const currTimeReadable = dateUtils.timeStampToReadable(currTime.getTime());
+      if (lastScrapeTimeReadable == currTimeReadable) {
+          throw new Error(`(${metadata.workId}) A day hasn't passed. Wait until midnight before updating...`);
+      }
+  }
+  //store info
+  let currSnap = snapshot;
+  let doesWorkExistAlr = await indexDB.doesWorkExist(metadata.workId);
+  //indexDB.cleanSameDaySnapshot();
+  //if work doesn't exist, add
+  if (!doesWorkExistAlr) {
+      //issue here
+      indexDB.addWork(metadata);
+      console.log("%c Work successfully added: ", "color: green;", metadata)
+  } else {
+      console.log("%c Work already exists: ", "color: red;",metadata);
+  }
+  await indexDB.addSnapshot(currSnap);
+  console.log("%c (Successful) Added Snapshot: ", "color: green;", snapshot);
+  return true;
+}
+
 let scraperController = {
     scrapeWebsiteAndSave,
     displaySnapshot,
     scrapeAndUpdate,
     scrapeMultiWork,
     displayAllWork,
-    scrapeDOMAndSave
-    
+    scrapeDOMAndSave,
+    handleScrapedData
 }
 export default scraperController

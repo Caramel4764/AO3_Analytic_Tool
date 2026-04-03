@@ -39,14 +39,8 @@ class CAnalytic {
     this.snapshots = snapshots;
     this.metadata = metadata;
     this.graphMetrics = this.getGraphMetric();
-    this.createBlock();
-    this.getHTMLElements();
-    this.elements.kudoChartCtx = this.createCanvas("kudo");
-    this.elements.hitChartCtx = this.createCanvas("hit");
-    this.elements.commentChartCtx = this.createCanvas("comment");
-    this.elements.bookmarkChartCtx = this.createCanvas("bookmark");
-
   }
+
   private createCanvas(key :string): HTMLCanvasElement {
     let graphDiv = document.createElement("div");
     graphDiv.className = "graph_div";
@@ -316,6 +310,9 @@ class CAnalytic {
     graph.update();
   }
   public update(snapshots: Snapshot[], metadata: Metadata): void {
+    if (!this.elements.kudoChart) {
+      throw new Error(`CAnalytic not mounted for workId ${this.metadata.workId}`);
+    }
     this.updateDataInfo(snapshots, metadata);
     this.updateStatBlock();
     this.updateGraph(this.elements.kudoChart, "kudo");
@@ -361,6 +358,17 @@ class CAnalytic {
     this.createGraph(hitConfig);
     this.createGraph(commentConfig);
     this.createGraph(bookmarkConfig);
+  }
+  /**
+   * Creates empty html element and store them.
+   */
+  public mount(): void {
+    this.createBlock();
+    this.getHTMLElements();
+    this.elements.kudoChartCtx = this.createCanvas("kudo");
+    this.elements.hitChartCtx = this.createCanvas("hit");
+    this.elements.commentChartCtx = this.createCanvas("comment");
+    this.elements.bookmarkChartCtx = this.createCanvas("bookmark");
   }
 }
 
