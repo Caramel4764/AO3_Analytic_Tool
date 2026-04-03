@@ -14,7 +14,7 @@ chrome.runtime.onMessage.addListener((message) => {
             return response.text()})
           .then((html)=>{
             const doc = new DOMParser().parseFromString(html, "text/html");
-            return scraperController.scrapeDOMAndSave(doc, currWork.url).then(()=>{
+            return scraperController.scrapeByDOMAndSave(doc, currWork.url).then(()=>{
           })
         });
       })

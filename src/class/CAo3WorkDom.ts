@@ -1,10 +1,10 @@
 //import HTMLParserUtil from "./utils/HTMLParserUtil";
-import numberUtils from "./utils/numberUtils";
-import type {Snapshot, Metadata} from "./data/types"
-import HTMLParserUtil from "./utils/HTMLParserUtil";
-import dateUtils from "./utils/dateUtils";
+import numberUtils from "../utils/numberUtils";
+import type {Snapshot, Metadata} from "../data/types"
+import HTMLParserUtil from "../utils/HTMLParserUtil";
+import dateUtils from "../utils/dateUtils";
 
-class Ao3WorkDom {
+class CAo3WorkDom {
     dom: Document;
     snapshot: Snapshot;
     metadata: Metadata;
@@ -101,7 +101,7 @@ class Ao3WorkDom {
         for (let i = 0; i < listOfDataLabel.length; i++) {
             listOfDataLabel[i].textContent = (listOfDataLabel[i].textContent).toLowerCase().replace(":", "");
             if (listOfDataLabel[i].textContent == "chapters") {
-                this.snapshot[listOfDataLabel[i].textContent] = Ao3WorkDom.parseAO3Chapter(listOfDataValue[i].textContent);
+                this.snapshot[listOfDataLabel[i].textContent] = CAo3WorkDom.parseAO3Chapter(listOfDataValue[i].textContent);
             } else {
                 this.snapshot[listOfDataLabel[i].textContent] = numberUtils.removeCommaFromNum(listOfDataValue[i].textContent);
             }
@@ -117,4 +117,4 @@ class Ao3WorkDom {
 
 
 
-export default Ao3WorkDom;
+export default CAo3WorkDom;

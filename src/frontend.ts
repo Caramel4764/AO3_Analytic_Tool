@@ -1,6 +1,6 @@
 import indexDB from "./indexDB";
 import type { Metadata, Snapshot } from "./data/types";
-import CAnalytic from "./CAnalytic";
+import CAnalytic from "./class/CAnalytic";
 let allCAnalytic = new Map<number, CAnalytic>();
 
 
@@ -42,7 +42,6 @@ async function generateHTMLStatsFromWork(workId, statDivHolder): Promise<boolean
  * @param statDivHolder - Div which the graphs will be appended to
  */
 async function generateHTMLStatsFromMultiWork(listOfWork:Metadata[], statDivHolder) {
-    console.log("allMetadata: ", listOfWork);
     listOfWork.map(async(work)=>{
         await generateHTMLStatsFromWork(work.workId, statDivHolder);
     });

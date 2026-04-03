@@ -3,30 +3,13 @@ Handles scraping and generation of HTML data right after scraping
 */
 
 import HTMLParserUtil from "./utils/HTMLParserUtil";
-import Ao3WorkDom from "./Ao3WorkDom";
+import CAo3WorkDom from "./class/CAo3WorkDom";
 import indexDB from "./indexDB";
 import dateUtils from "./utils/dateUtils";
 import type { Snapshot, Metadata } from "./data/types";
 import frontend from "./frontend";
 
-/** Scrapes a website by link
- * 
- * @param link - Link of work to scrape
- * @returns {Boolean} - Is successful?
- */
-async function scrapeWebsiteAndSave (link): Promise<boolean> {
-    let workId = HTMLParserUtil.getIdFromLink(link);
-    if (await isScrapeOnCD(workId)) return false;
-    //fetch information
-    let HTMLString = await HTMLParserUtil.fetchHTML(link)
-    let HTMLDom = HTMLParserUtil.stringHTMLToDom(HTMLString);
-    let newAo3WorkDom = new Ao3WorkDom(HTMLDom, link);
-    //store info
-    let currSnap = newAo3WorkDom.getSnapshot()
-    await addNewWork(newAo3WorkDom.metadata);
-    await indexDB.addSnapshot(currSnap);
-    return true;
-}
+
 /** Safely add a work. If unique, it adds it to the DB. If it already exist, it won't be added. Both send an console.log message
  * 
  * @param workID - Id of work to add
@@ -45,6 +28,25 @@ async function addNewWork(metadata:Metadata): Promise<Boolean> {
         return false;
     }
 }
+/** Scrapes a website by link
+ * 
+ * @param link - Link of work to scrape
+ * @returns {Boolean} - Is successful?
+ */
+async function scrapeByURL (link): Promise<boolean> {
+    let workId = HTMLParserUtil.getIdFromLink(link);
+    if (await isScrapeOnCD(workId)) return false;
+    //fetch information
+    let HTMLString = await HTMLParserUtil.fetchHTML(link)
+    let HTMLDom = HTMLParserUtil.stringHTMLToDom(HTMLString);
+    let newAo3WorkDom = new CAo3WorkDom(HTMLDom, link);
+    //store info
+    let currSnap = newAo3WorkDom.getSnapshot()
+    await addNewWork(newAo3WorkDom.metadata);
+    await indexDB.addSnapshot(currSnap);
+    return true;
+}
+
 async function isScrapeOnCD(workId: number): Promise<Boolean> {
     let latestSnapshot = await indexDB.getMostRecentSnapshotFromWork(workId);
     if (latestSnapshot) {
@@ -55,11 +57,11 @@ async function isScrapeOnCD(workId: number): Promise<Boolean> {
         
         if (lastScrapeTimeReadable == currTimeReadable) {
             console.warn(`(${workId}) A day hasn't passed. Wait until midnight before updating...`);
-            return false
+            return true
             //throw new Error(`(${workId}) A day hasn't passed. Wait until midnight before updating...`);
         }
     }
-    return true;
+    return false;
 }
 /** Scrapes the dom and saves it the db
  * 
@@ -68,7 +70,7 @@ async function isScrapeOnCD(workId: number): Promise<Boolean> {
  * 
  * @returns {Boolean} - Is scraping a success
  */
-async function scrapeDOMAndSave (HTMLDom:HTMLDocument, link:string): Promise<boolean> {
+async function scrapeByDOMAndSave (HTMLDom:HTMLDocument, link:string): Promise<boolean> {
     let workId = HTMLParserUtil.getIdFromLink(link);
     if (await isScrapeOnCD(workId)) {
         return false;
@@ -76,23 +78,12 @@ async function scrapeDOMAndSave (HTMLDom:HTMLDocument, link:string): Promise<boo
     //fetch information
     let HTMLString = await HTMLParserUtil.fetchHTML(link)
     HTMLDom = HTMLParserUtil.stringHTMLToDom(HTMLString);
-    let newAo3WorkDom = new Ao3WorkDom(HTMLDom, link);
+    let newAo3WorkDom = new CAo3WorkDom(HTMLDom, link);
     //store info
     let currSnap = newAo3WorkDom.getSnapshot();
     await addNewWork(newAo3WorkDom.metadata);
     await indexDB.addSnapshot(currSnap);
     return true;
-}
-
-/** Scrapes a website and update the HTML right away
- * 
- * @param link - link of the website to scrape
- * @param statDivHolder - div to store the generate HTML
- */
-async function scrapeAndUpdate(link, statDivHolder) {
-    await scrapeWebsiteAndSave(link);
-    let workId = HTMLParserUtil.getIdFromLink(link);
-    await frontend.generateHTMLStatsFromWork(workId, statDivHolder);
 }
 
 /** Stores metadata and snapshot into DB (Assumed data gotten from scraping)
@@ -102,15 +93,18 @@ async function scrapeAndUpdate(link, statDivHolder) {
  * @returns {Boolean} - Was it successful
  */
 async function handleScrapedData(metadata: Metadata, snapshot: Snapshot): Promise<Boolean> {
-  if (await isScrapeOnCD(metadata.workId)) return false;
-  await addNewWork(metadata);
-  await indexDB.addSnapshot(snapshot);
-  return true;
+    console.log("Testing: ", metadata);
+    if (await isScrapeOnCD(metadata.workId)) return false;
+    await addNewWork(metadata);
+    await indexDB.addSnapshot(snapshot);
+    console.log("Handling new metadata: ", metadata);
+    console.log("Handling new snapshot: ", snapshot);
+    return true;
 }
 
 let scraperController = {
-    scrapeAndUpdate,
-    scrapeDOMAndSave,
+    //scrapeByURLAndUpdate,
+    scrapeByDOMAndSave,
     handleScrapedData
 }
 export default scraperController
