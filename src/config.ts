@@ -1,10 +1,11 @@
 const config = {
-  isTesting: false,
-  scrapMSCD: 3000,
-  scrapeBatchSize: 2,
-  isDeveloping: true,
-  minHourBetweenScrap: 6,
-  recheckFrequencyInHour: 1
+  isTesting: false, //use testing data?
+  scrapMSCD: 3000, //cooldown between scrap batch in milliseconds
+  scrapeBatchSize: 2, // how many works are scraped at once
+  isDeveloping: false, // activate code that makes developing a little easier
+  minHourBetweenScrap: 6, // at least this many hours have happened before scrap happens
+  recheckFrequencyInHour: 1,
+  scrapeFailureAllowed: 3 // if scraping fails, try again for this many time
 }
 
 export default config;

@@ -75,7 +75,7 @@ if (Ao3WorkNavAction) {
     console.log("LINK:", window.location.href)
     metadata.url = window.location.href;
     metadata.workId = HTMLParserUtil.getIdFromLink(metadata.url);
-    metadata.published = document.querySelector("dl.stats dd.status")?.textContent 
+    metadata.published = document.querySelector("dl.stats dd.published")?.textContent 
     ?? document.querySelector("dl.stats dd.published")?.textContent;
     metadata.author = document.querySelector("div.preface.group h3.byline.heading").textContent.trim();
     metadata.title = document.querySelector("div.preface.group h2.title.heading").textContent.trim();

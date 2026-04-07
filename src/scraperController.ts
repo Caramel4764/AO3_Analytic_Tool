@@ -9,7 +9,6 @@ import dateUtils from "./utils/dateUtils";
 import type { Snapshot, Metadata } from "./data/types";
 import frontend from "./frontend";
 
-
 /** Safely add a work. If unique, it adds it to the DB. If it already exist, it won't be added. Both send an console.log message
  * 
  * @param workID - Id of work to add

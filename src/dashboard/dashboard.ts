@@ -25,5 +25,7 @@ async function init () {
             frontend.generateHTMLStatsFromMultiWork(allMetadata, rootEle);
         }
     }
+    //indexDB.removeAllSnapshotsByDate(new Date("2026-04-03").getTime());
+
 }
 init();

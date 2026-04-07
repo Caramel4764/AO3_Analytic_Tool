@@ -259,7 +259,7 @@ async function getAllWork(): Promise<Metadata[]> {
 async function doesWorkExist(workId:number):Promise<boolean> {
     let allWork = await getAllWork();
     console.log("ALL WORK:", allWork);
-    console.log("workId: ", workId)
+    console.log("workId: ", workId);
     for (let i = 0; i < allWork.length; i++) {
         if (allWork[i].workId == workId) {
             console.log("true: ")

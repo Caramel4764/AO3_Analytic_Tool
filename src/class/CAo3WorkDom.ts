@@ -85,7 +85,7 @@ class CAo3WorkDom {
     */
     parseMetadata():void {
         this.metadata.workId = HTMLParserUtil.getIdFromLink(this.metadata.url);
-        this.metadata.published = this.dom.querySelector("dl.stats dd.status").textContent;
+        this.metadata.published = this.dom.querySelector("dl.stats dd.published").textContent;
         this.metadata.author = this.dom.querySelector("div.preface.group h3.byline.heading").textContent.trim();
         this.metadata.title = this.dom.querySelector("div.preface.group h2.title.heading").textContent.trim();
         this.metadata.timeStamp = Date.now();
