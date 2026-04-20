@@ -20,7 +20,27 @@ async function init(allWorkAndSnapObj) {
   allWorkAndSnapObj.allSnapshot = allSnapshots;
 }
 init(allWorkAndSnapObj);
-async function openBackgroundDOM(workToScrap: Metadata[] = allWorkAndSnapObj.allMetadata) {
+
+/**
+ * Check if still attempts left. Scrape what what is unscraped. Either all or unscraped
+ */
+async function ScrapeIfUnscraped() {
+  let {dailyUnscrapedWork, scrapeTryCounts} = await chrome.storage.local.get([
+    "dailyUnscrapedWork",
+    "scrapeTryCounts",
+  ]) as { dailyUnscrapedWork?: Metadata[]; scrapeTryCounts?: number };
+  if (scrapeTryCounts >= config.scrapeFailureAllowed) {
+    console.warn('Out of scrape retries for the day');
+    return;
+  }
+  //if (!dailyUnscrapedWork || dailyUnscrapedWork.length==0) {
+  openBackgroundDOM();
+  //} else {
+    //openBackgroundDOM(dailyUnscrapedWork as unknown as Metadata[]);
+  //
+}
+
+async function openBackgroundDOM() {
   if (isScrappingInProgress) {
     console.log("Already scraping, please wait");
     return;
@@ -28,9 +48,6 @@ async function openBackgroundDOM(workToScrap: Metadata[] = allWorkAndSnapObj.all
   }
   let res = await chrome.storage.local.get("scrapeTryCounts");
   let scrapeTryCounts:number = res.scrapeTryCounts as number ?? config.scrapeFailureAllowed;
-  if (scrapeTryCounts >= config.scrapeFailureAllowed) {
-    return;
-  }
   scrapeTryCounts++;
   await chrome.storage.local.set({scrapeTryCounts});
   isScrappingInProgress = true;
@@ -48,34 +65,30 @@ async function openBackgroundDOM(workToScrap: Metadata[] = allWorkAndSnapObj.all
 async function handleTrackWork(metadata:Metadata, snapshot:Snapshot) {
   await scraperController.handleScrapedData(metadata, snapshot);
 }
+async function GetWorkToUpdate(): Promise<Metadata[]> {
+  let {dailyUnscrapedWork: updateList} = await chrome.storage.local.get("dailyUnscrapedWork") as {dailyUnscrapedWork?: Metadata[]};
+  if (!updateList) {
+    updateList = await indexDB.getAllWork();
+  }
+  return updateList;
+}
 
 //handling alarm
 chrome.runtime.onInstalled.addListener(() => {
   //Remove previous instance so most recent code
   chrome.alarms.clear("dailyScrape", () => {
-    //chrome.storage.local.set({hasDailyScrapeSucceeded: false});
+    chrome.storage.local.set({scrapeTryCounts: 0});
     chrome.alarms.create("dailyScrape", {
       when: dateUtils.getNextMidnight(),
       periodInMinutes: rescrapeHourCD,
     });
   });
-  checkForRescrape();
 });
 
 chrome.alarms.onAlarm.addListener((message)=>{
   console.log('Alarm hit');
-
   if (message.name === "dailyScrape") {
-    chrome.storage.local.get("dailyUnscrapedWork").then((results: {
-      dailyUnscrapedWork?: Metadata[]
-    })=>{
-      let unscrapedWorks:Metadata[] = results.dailyUnscrapedWork ?? [];
-      if (!unscrapedWorks || unscrapedWorks.length==0) {
-        openBackgroundDOM();
-      } else {
-        openBackgroundDOM(unscrapedWorks as unknown as Metadata[]);
-      }
-    });
+    ScrapeIfUnscraped();
   }
 })
 
@@ -87,10 +100,11 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   }
   //background dom has finished loaded
   if (message.type === "HIDDEN_DOM_LOADED") {
-    indexDB.getAllWork().then((allMetadata)=> {
+    GetWorkToUpdate().then((workToUpdateList)=> {
       chrome.runtime.sendMessage({
         type: "START_DAILY_SCRAPE",
-        works: allMetadata
+        //work list here
+        works: workToUpdateList
       });
     });
   }
@@ -107,6 +121,9 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       chrome.storage.local.set({dailyUnscrapedWork: failedScrapes}).then(()=>{
         console.warn("Failed works queued for retry:", failedScrapes);
       });
+      chrome.alarms.create("dailyScrape", {
+        delayInMinutes: config.rescrapeAttemptTimeInMinutes
+    });
     }
     if (!config.isDeveloping) {
       chrome.offscreen.closeDocument();
@@ -114,33 +131,13 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   }
 });
 
-function checkForRescrape() {
-  //out of tries, abort
-  chrome.storage.local.get("scrapeTryCounts").then((res)=>{
-    let scrapeTryCounts: number = res.scrapeTryCounts as number ?? config.scrapeFailureAllowed;
-    if (scrapeTryCounts >= config.scrapeFailureAllowed) {
-      return;
-    }
-    chrome.storage.local.get("dailyUnscrapedWork").then((unscrappedWorks)=>{
-      if (!unscrappedWorks || unscrappedWorks.length!=0) {
-        chrome.alarms.create("dailyScrape", {
-          periodInMinutes: 0.1,
-        });
-      }
-      chrome.alarms.getAll().then((alarms) => {
-        console.log(alarms);
-      });
-    })
-  });
-}
 chrome.runtime.onStartup.addListener(()=>{
-    //openBackgroundDOM();
-    checkForRescrape();
-    chrome.storage.local.get("lastSuccessfulScrapeDate").then((res)=>{
-      if (res.lastSuccessfulScrapeDate && res.lastSuccessfulScrapeDate != new Date().toDateString()) {
-        chrome.storage.local.set({scrapeTryCounts: 0});
-      }
+  chrome.storage.local.get("lastSuccessfulScrapeDate").then((res)=>{
+    //if last successful scrape isn't today
+    if (!res.lastSuccessfulScrapeDate || res.lastSuccessfulScrapeDate != new Date().toDateString()) {
+      chrome.storage.local.set({scrapeTryCounts: 0});
+      ScrapeIfUnscraped();
+    }
+  });
 
-    });
-  
 })

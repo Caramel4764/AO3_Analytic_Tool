@@ -5,6 +5,7 @@ const config = {
   isDeveloping: false, // activate code that makes developing a little easier
   minHourBetweenScrap: 6, // at least this many hours have happened before scrap happens
   recheckFrequencyInHour: 1,
+  rescrapeAttemptTimeInMinutes: 3,
   scrapeFailureAllowed: 3 // if scraping fails, try again for this many time
 }
 
