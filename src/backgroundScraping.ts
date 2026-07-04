@@ -1,3 +1,7 @@
+/**
+ * Intercepts scraping signal to start scraping
+*/
+
 import scraperController from "./scraperController";
 import type { Snapshot, Metadata, TrackWorkMsgData } from "./data/types";
 chrome.runtime.sendMessage({ type: "HIDDEN_DOM_LOADED" });

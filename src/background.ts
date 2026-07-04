@@ -1,4 +1,7 @@
-//Serves as the centeral brain. Does stuff like handle alarms, scheduling, etc.
+/* 
+Serves as the centeral brain. 
+Does stuff like handle alarms, scheduling, etc.
+*/
 import indexDB from "./indexDB";
 import scraperController from "./scraperController";
 import dateUtils from "./utils/dateUtils";

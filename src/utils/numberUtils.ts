@@ -15,6 +15,11 @@ function removeCommaFromNum(num:string):number|string {
     }
     return convertedNum;
 }
+/** Finds the current chapter from entire chapter string 6/?
+ * 
+ * @param chapterString - The chapter string from scraping ao3
+ * @returns - The current chapter number
+ */
 function parseAO3Chapter(chapterString:string): number {
     let chapterInt = "";
     for (let i = 0; i < chapterString.length; i++) {
@@ -36,13 +41,35 @@ function parseAO3Chapter(chapterString:string): number {
 function calculateEngagement(kudo:number, hits:number):string {
     return ((kudo/hits)*100).toFixed(2)+"%";
 }
-//consider missing data later or day changes
+
+/**
+ * 
+ * @param timestamp1 First timestamp
+ * @param timestamp2 Second timestamp
+ * @returns {Number} Days Beween the timestmap
+ */
+function calcDaysInBetween(timestamp1:number, timestamp2:number): number {
+    // Ignore hour so even if 24 hour not passed, can be new day
+    const date1 = new Date(timestamp1);
+    const date2 = new Date(timestamp2);
+    const utc1 = Date.UTC(date1.getFullYear(), date1.getMonth(), date1.getDate());
+    const utc2 = Date.UTC(date2.getFullYear(), date2.getMonth(), date2.getDate());
+
+    const msDiff = Math.abs(utc1 - utc2);
+    return Math.floor(msDiff)/(1000*60*60*24);
+}
+// Consider missing data later or day changes
 function metricPerDay(metrics:GraphMetric[], startStatKey:string, endStatKey:string):void {
     for (let i = 0; i < metrics.length; i++) {
         if (i == 0) {
             metrics[i][endStatKey] = 0;
         } else {
-            metrics[i][endStatKey] = metrics[i][startStatKey] - metrics[i-1][startStatKey];
+            let daysElapsed = calcDaysInBetween(metrics[i]["timeStamps"], metrics[i-1]["timeStamps"]);
+            if (daysElapsed == 0) {
+                throw new Error("metricPerDay: Cannot divide by zero. Zero days have passed");
+            }
+            metrics[i][endStatKey] = Math.round((metrics[i][startStatKey] - metrics[i-1][startStatKey]) / daysElapsed);
+            // console.log(`Days between ${metrics[i]["dates_converted"]} and ${metrics[i-1]["dates_converted"]} = ${calcDaysInBetween(metrics[i]["timeStamps"], metrics[i-1]["timeStamps"])}`);
         }
     }
 }

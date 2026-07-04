@@ -14,3 +14,8 @@
 2. Confirm link is ao3
 3. Better description for how page works
 4. Loading spinning circle
+
+## Hover data
+1. No dot til selected
+2. Area show and not dot
+3. 

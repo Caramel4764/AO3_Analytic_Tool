@@ -1,3 +1,5 @@
+//config is customConfig due to naming overlaps
+
 import type{ AnalyticElements, ChartConfigParam, Snapshot, Metadata, GraphMetric, GraphData } from "../data/types";
 import dateUtils from "../utils/dateUtils";
 import Chart from 'chart.js/auto';
@@ -6,6 +8,9 @@ import numberUtils from "../utils/numberUtils";
 import stringUtils from "../utils/stringUtils";
 import annotationPlugin from 'chartjs-plugin-annotation';
 import { _adapters } from 'chart.js';
+import { config } from "dotenv";
+import customConfig from "../config";
+
 Chart.register(annotationPlugin);
 
 class CAnalytic {
@@ -150,10 +155,10 @@ class CAnalytic {
           label,
           data,
           borderColor: color,
-          borderWidth: 2,
-          tension: 0,
+          borderWidth: customConfig.lineWidth,
+          tension: customConfig.lineRoundness,
           pointBackgroundColor: color,
-          pointRadius: 4,
+          pointRadius: customConfig.pointRadius,
           order: 0,
           segment: {
             borderColor: ctx => this.skipped(ctx, 'rgb(0,0,0,0.2)'),
